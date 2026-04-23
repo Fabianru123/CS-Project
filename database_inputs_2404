@@ -8,15 +8,14 @@ DB = sqlite3.connect("predicted_inputs.db")
 # create a cursor to send SQL commands to the database
 cursor = DB.cursor()
 
-#link name
-name = st.text_input("Name")
-
-# create the input table
+# create the input table, Quelle für 'INTEGER PRIMARY KEY AUTOINCREMENT': CODEX
 cursor.execute(
     """
     CREATE TABLE IF NOT EXISTS input (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, #Quelle: CODEX
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
+        age TEXT,
+        studien TEXT,
         lernzeit INTEGER,
         stress INTEGER,
         bild INTEGER,
@@ -34,11 +33,13 @@ cursor.execute(
 )
 
 
-def add_input(name, lernzeit, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport):
+def add_input(name, age, studien, lernzeit, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport):
     cursor.execute(
         """
         INSERT INTO input (
             name,
+            age, 
+            studien,
             lernzeit,
             bild,
             gesund,
@@ -53,7 +54,7 @@ def add_input(name, lernzeit, bild, gesund, hilfe, pausen, fail, freetime, goout
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (name, lernzeit, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport),
+        (name, age, studien, lernzeit, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport),
     )
 
     DB.commit()
