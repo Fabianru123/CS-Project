@@ -185,9 +185,9 @@ def init_state():
         "checkin_step": 1,
         "checkin_answers": {},
         "exams": [
-            {"name": "Statistik", "date": date(2025, 6, 15), "ects": 6},
-            {"name": "Marketing", "date": date(2025, 6, 20), "ects": 3},
-            {"name": "Recht I",   "date": date(2025, 6, 28), "ects": 4},
+            {"name": "Statistik", "date": date(2026, 6, 15), "ects": 6},
+            {"name": "Marketing", "date": date(2026, 6, 20), "ects": 3},
+            {"name": "Recht I",   "date": date(2026, 6, 28), "ects": 4},
         ],
     }
     for k, v in defaults.items():
