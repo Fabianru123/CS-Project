@@ -154,7 +154,7 @@ if st.button("Bestätigen", key = "button"):
 
 
 st.session_state.punkte += pschlaf + plernzeit + pstress1 + pbild + pgesund + philfe + ppausen + pfail + pfreetime + pgoout + ppendel + pfood + psport 
-
+# are we sure that it is not supposed to be a = here ? Because maybe it cannot go to 0 for every new user
 
 
 
