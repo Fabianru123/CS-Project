@@ -16,18 +16,18 @@ cursor.execute(
         name TEXT,
         age TEXT,
         studien TEXT,
-        schlaf TEXT
+        schlaf INTEGER
         lernzeit INTEGER,
-        stress INTEGER,
+        stress TEXT,
         bild INTEGER,
-        gesund INTEGER,
+        gesund TEXT,
         hilfe INTEGER,
         pausen INTEGER,
         fail INTEGER,
         freetime INTEGER,
-        goout INTEGER,
+        goout TEXT,
         pendel INTEGER,
-        food INTEGER,
+        food TEXT,
         sport INTEGER
     )
     """
