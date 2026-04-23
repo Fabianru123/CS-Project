@@ -135,7 +135,7 @@ if st.button("Bestätigen", key = "button"):
     if goout == "Lernen ist gut möglich":
         pgoout = 2
     elif goout == "Lernen ist schwierig":
-        pfail = 1
+        pgoout = 1                                #modified by H. was written pfail = 1, probably pgoout
 
     if 0 <= pendel <= 1:
         ppendel = 2
