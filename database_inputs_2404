@@ -1,0 +1,71 @@
+# import the relevant library
+import sqlite3
+
+
+# connect to the database
+DB = sqlite3.connect("predicted_inputs.db")
+
+# create a cursor to send SQL commands to the database
+cursor = DB.cursor()
+
+#link name
+name = st.text_input("Name")
+
+# create the input table
+cursor.execute(
+    """
+    CREATE TABLE IF NOT EXISTS input (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, #Quelle: CODEX
+        name TEXT,
+        lernzeit INTEGER,
+        stress INTEGER,
+        bild INTEGER,
+        gesund INTEGER,
+        hilfe INTEGER,
+        pausen INTEGER,
+        fail INTEGER,
+        freetime INTEGER,
+        goout INTEGER,
+        pendel INTEGER,
+        food INTEGER,
+        sport INTEGER
+    )
+    """
+)
+
+
+def add_input(name, lernzeit, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport):
+    cursor.execute(
+        """
+        INSERT INTO input (
+            name,
+            lernzeit,
+            bild,
+            gesund,
+            hilfe,
+            pausen,
+            fail,
+            freetime,
+            goout,
+            pendel,
+            food,
+            sport
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (name, lernzeit, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport),
+    )
+
+    DB.commit()
+
+
+def get_inputs():
+    """Get all rows from the input table."""
+    cursor.execute(
+        """
+        SELECT *
+        FROM input
+        """
+    )
+
+    return cursor.fetchall()
