@@ -18,8 +18,11 @@ st.divider ()
 st.subheader("Deine persönlichen Angaben")
 
 st.text_input("Name")
+name = st.text_input("Name")                            #added by H.
 st.number_input("Alter", 0, None, None, 1)
+age = st.number_input("Alter", 0, None, None, 1)        #added by H.
 st.text_input("Studiengang")
+studien = st.text_input("Studiengang")                  #added by H.
 
 st.divider ()
 
