@@ -1,5 +1,7 @@
 #code Claire: Variablen, Berechnung des Scores und Darstellung als Spiderweb und als Passprobability 
 
+from database_inputs import add_input #added by Helena
+
 import streamlit as st
 
 with st.sidebar:
@@ -107,7 +109,7 @@ if st.button("Bestätigen", key = "button"):
     if gesund == "Sehr gut":
         pgesund = 4
     elif gesund == "Gut":
-        pbild = 2
+        pgesund = 2                    #modified by H. was written pbild = 2, probably pgesund
 
     if hilfe >= 2:
         philfe = 4
@@ -149,6 +151,7 @@ if st.button("Bestätigen", key = "button"):
         psport = 2
     elif 3 <= sport <= 5:
         psport = 1
+
 
 st.session_state.punkte += pschlaf + plernzeit + pstress1 + pbild + pgesund + philfe + ppausen + pfail + pfreetime + pgoout + ppendel + pfood + psport 
 
