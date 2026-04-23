@@ -16,6 +16,7 @@ cursor.execute(
         name TEXT,
         age TEXT,
         studien TEXT,
+        schlaf TEXT
         lernzeit INTEGER,
         stress INTEGER,
         bild INTEGER,
@@ -33,14 +34,16 @@ cursor.execute(
 )
 
 
-def add_input(name, age, studien, lernzeit, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport):
+def add_input(name, age, studien, schlaf, lernzeit, stress, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport):
     cursor.execute(
         """
         INSERT INTO input (
             name,
             age, 
             studien,
+            schlaf,
             lernzeit,
+            stress,
             bild,
             gesund,
             hilfe,
@@ -52,9 +55,9 @@ def add_input(name, age, studien, lernzeit, bild, gesund, hilfe, pausen, fail, f
             food,
             sport
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (name, age, studien, lernzeit, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport),
+        (name, age, studien, schlaf, lernzeit, stress, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport),
     )
 
     DB.commit()
