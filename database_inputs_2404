@@ -16,7 +16,7 @@ cursor.execute(
         name TEXT,
         age TEXT,
         studien TEXT,
-        schlaf INTEGER
+        schlaf INTEGER,
         lernzeit INTEGER,
         stress TEXT,
         bild INTEGER,
