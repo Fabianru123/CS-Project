@@ -155,8 +155,7 @@ if st.button("Bestätigen", key = "button"):
     add_input(name, age, studien, schlaf, lernzeit, stress, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport)
 
 
-st.session_state.punkte += pschlaf + plernzeit + pstress1 + pbild + pgesund + philfe + ppausen + pfail + pfreetime + pgoout + ppendel + pfood + psport 
-# are we sure that it is not supposed to be a = here ? Because maybe it cannot go to 0 for every new user
+st.session_state.punkte = pschlaf + plernzeit + pstress1 + pbild + pgesund + philfe + ppausen + pfail + pfreetime + pgoout + ppendel + pfood + psport 
 
 
 
