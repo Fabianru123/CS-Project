@@ -1,6 +1,6 @@
 #code Claire: Variablen, Berechnung des Scores und Darstellung als Spiderweb und als Passprobability 
 
-from database_inputs_2404 import add_input #added by Helena
+from databases_sql import add_input #added by Helena
 
 import streamlit as st
 
