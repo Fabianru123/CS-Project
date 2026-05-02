@@ -9,6 +9,14 @@ import plotly.graph_objects as go
 from databases_sql import init_db, get_or_create_user
 init_db()
 
+st.title("Profil")
+
+st.divider()
+
+st.write("Ein Überblick über deinen aktuellen Stand im Vergleich zu anderen sowie die Entwicklung deiner Performance über die Zeit.")
+
+st.divider ()
+
 # TEMPORARY LOGIN
 username = st.text_input("User Name")                    #modified by H.
 if st.button("Login"):
