@@ -1,9 +1,11 @@
 #code Claire: Variablen, Berechnung des Scores und Darstellung als Spiderweb und als Passprobability 
 
-from databases_sql import add_input #added by Helena
+# import
+from databases_sql import add_input, init_db, get_or_create_user
 
 import streamlit as st
 
+init_db()
 
 
 #code sidebar 
@@ -13,11 +15,20 @@ with st.sidebar:
 
     st.subheader("Deine persönlichen Angaben")
 
-    name = st.text_input("Name")                            #modified by H.
-    age = st.number_input("Alter", 0, None, None, 1)        #modified by H.
+    username = st.text_input("User Name")                    
+    if st.button("Login"):
+        if username.strip() == "":
+            st.warning("Bitte gib einen User Name ein.")
+        else:
+            user_id = get_or_create_user(username)
+            st.session_state["user_id"] = user_id
+            st.session_state["username"] = username
+            st.success(f"Eingeloggt als {username}")                               
+    age = st.number_input("Alter", 0, None, None, 1)        
     studien = st.text_input("Studiengang")
 
- #code title and welcoming page    
+
+#code title and welcoming page    
 
 st.title("PredictEd")
 
@@ -27,9 +38,7 @@ st.header("Berechnung des Scores")
 
 st.divider ()
 
-#code persönliche angaben 
-
-                  #modified by H.
+               
 
 #code variablen and sliders 
 
@@ -92,6 +101,9 @@ food = st.selectbox("Ernähung", ("Wählen", "Sehr gesund", "Kommt drauf an", "�
 psport = 0
 sport = st.slider("Sport *(in Stunden pro Woche)*", 0, 40)
 
+score = 2.5 * st.session_state.punkte
+# 2.5 = 100 / 40 = Score / Anzhal max Punkte nach der aktuellen Variablen 
+# 100 = max Score und entspricht der maximalen Wahrscheinlichkeit
 
 if st.button("Bestätigen", key = "button"):
     if schlaf >= 8:
@@ -188,31 +200,36 @@ if st.button("Bestätigen", key = "button"):
     else:
         psport = 0.5    
 
-    add_input(name, age, studien, schlaf, lernzeit, stress, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport)
+
+    st.session_state.punkte = pschlaf + plernzeit + pstress1 + pbild + pgesund + philfe + ppausen + pfail + pfreetime + pgoout + ppendel + pfood + psport 
 
 
-st.session_state.punkte = pschlaf + plernzeit + pstress1 + pbild + pgesund + philfe + ppausen + pfail + pfreetime + pgoout + ppendel + pfood + psport 
-
-
+    if "user_id" not in st.session_state:
+        st.warning("Bitte logge dich zuerst ein.")
+    else:
+        add_input(
+            st.session_state["user_id"], age, studien, pschlaf, plernzeit, pstress1, pbild, pgesund, philfe, ppausen, pfail, pfreetime, pgoout, ppendel, pfood, psport, score
+        )
+        st.success ("Daten gespeichert.")
 
 st.write("Punkte =", st.session_state.punkte)
 
-st.divider ()
+st.divider () 
 
-
-st.subheader("Dein Score")     
-
-score = 2.5 * st.session_state.punkte 
-# 2.5 = 100 / 40 = Score / Anzhal max Punkte nach der aktuellen Variablen 
-# 100 = max Score und entspricht der maximalen Wahrscheinlichkeit 
-
-st.write(score)
+#code score
+st.subheader("Dein Score")    
+if "punkte" in st.session_state and st.session_state.punkte > 0:
+    st.write(score)
+else:
+    st.caption("Noch kein Score berechnet.")
 
 with st.sidebar: 
-    st.write("Dein Score:", score)
+    if "punkte" in st.session_state and st.session_state.punkte > 0:
+        score = 2.5 * st.session_state.punkte
+    else:
+        st.write("Dein Score:", score)
 
-col1, col2 = st.columns(2) 
-
+col1, col2 = st.columns(2)
 
 #Quelle: ChatGPT für die Struktur 
 
@@ -270,83 +287,98 @@ with col2:
 
     st.plotly_chart(fig_gauge)
 
- #tipps 
 
-st.subheader("Deine personalisierten Tipps")
 
-if pschlaf == 4:
-    st.write ("Du ruhst dich optimal aus. Nutze deine Energie am Vormittag, direkt für anspruchsvolle Aufgaben, solange deine Konzentration hoch ist")
-elif pschlaf == 2:
-    st.write("Versuche heute Abend schon 30 Minuten früher ins Bett zu gehen und auf Bildschirmzeit  zu verzichten, damit sich dein Körper optimal erholen kann")
-elif pschlaf == 1:
-    st.write ("Gönne deinem Körper heute die nötige Erholung. Versuche, dich mit einem 15-minütigen Powernap zu erholen und gehe deutlich früher Schlafen, um dein Schlafdefizit abzubauen")
+#tipps 
+if st.session_state.punkte > 0:
+    st.subheader("Deine personalisierten Tipps")
 
-if plernzeit == 4:
-    st.write("Weiter so! Nutze deine Lernzeit möglichst effizient, indem du sie gezielt einsetzt, damit du deine Energie optimal nutzen kannst")
-elif plernzeit == 2:
-    st.write("Mit nur 30 Minuten zusätzlicher Lernzeit und einem klaren Fokus, kannst du deine Lernziele künftig effizienter und entspannter erreichen.")
-elif plernzeit == 1:
-    st.write("Beginne heute mit einer kleinen, aber fokussierten Lerneinheit in einer ruhigen Umgebung. So findest du wieder zu deinem Lernrhythmus und kommst deinen Lernzielen einen grossen Schritt näher")
+    st.write("**Schlaf**")
+    if pschlaf == 4:
+        st.write ("Du ruhst dich optimal aus. Nutze deine Energie am Vormittag, direkt für anspruchsvolle Aufgaben, solange deine Konzentration hoch ist")
+    elif pschlaf == 2:
+        st.write("Versuche heute Abend schon 30 Minuten früher ins Bett zu gehen und auf Bildschirmzeit  zu verzichten, damit sich dein Körper optimal erholen kann")
+    elif pschlaf == 1:
+        st.write ("Gönne deinem Körper heute die nötige Erholung. Versuche, dich mit einem 15-minütigen Powernap zu erholen und gehe deutlich früher Schlafen, um dein Schlafdefizit abzubauen")
 
-if pstress1 == 4:
-    st.write ("Du scheinst alles im Griff zu haben, nutze deine Ruhe um bei einem schwierigen Thema voranzukommen")
-elif pstress1 == 2: 
-    st.write ("Du fühlst dich etwas überwältigt, priorisiere heute nur die drei wichtigsten Aufgaben und lass dir von uns ein Lernplan erstellen")
-elif pstress1 == 1:
-    st.write("Du fühlst dich überbelastet, streiche unnötige To-dos und fokussiere dich auf die wichtigsten Lernziele")
+    st.write("**Lernzeit**")
+    if plernzeit == 4:
+        st.write("Weiter so! Nutze deine Lernzeit möglichst effizient, indem du sie gezielt einsetzt, damit du deine Energie optimal nutzen kannst")
+    elif plernzeit == 2:
+        st.write("Mit nur 30 Minuten zusätzlicher Lernzeit und einem klaren Fokus, kannst du deine Lernziele künftig effizienter und entspannter erreichen.")
+    elif plernzeit == 1:
+        st.write("Beginne heute mit einer kleinen, aber fokussierten Lerneinheit in einer ruhigen Umgebung. So findest du wieder zu deinem Lernrhythmus und kommst deinen Lernzielen einen grossen Schritt näher")
 
-if pbild == 4: 
-    st.write ("Behalte die niedrige Bildschirmzeit, sie hilft dir komplexe Lerninhalte schneller zu verarbeiten")
-elif  pbild == 2:
-    st.write("Du hast eine erhöhte Bildschirmzeit,  versuche deshalb 30min vor dem Schlafen und in deinen Lenrpausen bewusst auf dein Handy zu verzichten")
-elif pbild == 1:
-    st.write ("Du benötigst ein digital Detox, schalte beim Lernen alle Benachtitigungen aus und lege dein Handy ausser Sichtweite")
+    st.write("**Stress**")
+    if pstress1 == 4:
+        st.write ("Du scheinst alles im Griff zu haben, nutze deine Ruhe um bei einem schwierigen Thema voranzukommen")
+    elif pstress1 == 2: 
+        st.write ("Du fühlst dich etwas überwältigt, priorisiere heute nur die drei wichtigsten Aufgaben und lass dir von uns ein Lernplan erstellen")
+    elif pstress1 == 1:
+        st.write("Du fühlst dich überbelastet, streiche unnötige To-dos und fokussiere dich auf die wichtigsten Lernziele")
 
-if philfe == 4:
-    st.write("Du hast ein solides Verständnis, festige dein Wissen indem du deinen Mitstudenten den Inhalt erklärst oder Altklausuren löst")
-elif philfe == 2:
-    st.write("Fülle wenn möglich Altklausuren aus, und prüfe welche Lücken du selber schliessen kannst und für welche Themen du Nachhilfe benötigst") 
-elif philfe == 1:
-    st.write("Wenn du das Gefühl hast, dass du bestimmte Themen nicht selbst erarbeiten kannst, hole dir rechtzeitig Hilfe in einem Tutorium oder von einer Nachhilfelehrkraft")
+    st.write('**Bildschirmzeit**')
+    if pbild == 4: 
+        st.write ("Behalte die niedrige Bildschirmzeit, sie hilft dir komplexe Lerninhalte schneller zu verarbeiten")
+    elif  pbild == 2:
+        st.write("Du hast eine erhöhte Bildschirmzeit,  versuche deshalb 30min vor dem Schlafen und in deinen Lenrpausen bewusst auf dein Handy zu verzichten")
+    elif pbild == 1:
+        st.write ("Du benötigst ein digital Detox, schalte beim Lernen alle Benachtitigungen aus und lege dein Handy ausser Sichtweite")
 
-if ppausen == 4:
-    st.write("Du hast das optimale Balance zwischen  Lernen und Pausen. Nutze deine Pausen  um an die frische Luft zu gehen und neue Energie zu tanken")
-elif ppausen == 2:
-    st.write("Du arbeitest zu lange am Stück, probiere die Pomodero-Technik aus ( 25min lernen und 5min Pause)")   
-elif ppausen == 1:
-    st.write ("Pausen sind esentiell für dein Gehirn, gönne dir heute noch eine  30-60min handyfreie Pause.")
+    st.write("**Nachhilfe**")
+    if philfe == 4:
+        st.write("Du hast ein solides Verständnis, festige dein Wissen indem du deinen Mitstudenten den Inhalt erklärst oder Altklausuren löst")
+    elif philfe == 2:
+        st.write("Fülle wenn möglich Altklausuren aus, und prüfe welche Lücken du selber schliessen kannst und für welche Themen du Nachhilfe benötigst") 
+    elif philfe == 1:
+        st.write("Wenn du das Gefühl hast, dass du bestimmte Themen nicht selbst erarbeiten kannst, hole dir rechtzeitig Hilfe in einem Tutorium oder von einer Nachhilfelehrkraft")
 
-if pfail == 2: 
-    st.write("Deine Lernstrategie scheint gut zu funktionieren und lass dir einen Lernplan von uns erstellen um dich möglichst effizient vorzubereiten")
-elif pfail == 1: 
-    st.write ("Analysiere deine Fehlerquelle, suche dir rechtzeitig eine Lerngruppe  und tausche dich mit anderen aus")
-elif pfail == 1:
-    st.write ("Hole dir Hilfe von der Studienberatung oder einem Mentor um das Semster erfolgreich abzuschliessen")  
+    st.write("**Pausen**")
+    if ppausen == 4:
+        st.write("Du hast das optimale Balance zwischen  Lernen und Pausen. Nutze deine Pausen  um an die frische Luft zu gehen und neue Energie zu tanken")
+    elif ppausen == 2:
+        st.write("Du arbeitest zu lange am Stück, probiere die Pomodero-Technik aus ( 25min lernen und 5min Pause)")   
+    elif ppausen == 1:
+        st.write ("Pausen sind esentiell für dein Gehirn, gönne dir heute noch eine  30-60min handyfreie Pause.")
 
-if pfreetime == 2:
-    st.write ("Du hast eine gute Balance zwischen deinem Uni und deinem Privatleben. Das erhöht deine kognitive Leistungsfähigkeit. Weiter so!")
-elif pfreetime == 1:
-    st.write ("Gönne dir etwas Abwechslung vom lernen, plane dieses Wochenende bewusst eine Aktivität ein die nichts mit der Uni zu tun hat.")
-elif pfreetime == 0.5:
-    st.write("Es fehlt dir an der nötigen Balance zwischen Uni und Privatleben. Triff dich in den nächsten Tagen mit Freunden oder nimm dir heute Abend etwas Zeit für dich")    
+    st.write("**Nicht bestandene Fächer**")
+    if pfail == 2: 
+        st.write("Deine Lernstrategie scheint gut zu funktionieren und lass dir einen Lernplan von uns erstellen um dich möglichst effizient vorzubereiten")
+    elif pfail == 1: 
+        st.write ("Analysiere deine Fehlerquelle, suche dir rechtzeitig eine Lerngruppe  und tausche dich mit anderen aus")
+    elif pfail == 1:
+        st.write ("Hole dir Hilfe von der Studienberatung oder einem Mentor um das Semster erfolgreich abzuschliessen")  
 
-if ppendel == 2: 
-    st.write("Du hast Glück mit deinem kurzen Fahrtweg, dies gibt dir mehr Zeit für Schlaf oder Freizeitaktivitäten.")
-elif ppendel == 1:
-    st.write ("Nutze die Fahrt um mit Karteikarten zu lernen oder für ein kurzes Quiz.") 
-elif ppendel == 0.5: 
-    st.write ("Du hast einen langen Fahrtweg, lass dich von dem nicht stressen. Nutze die Zeit bewusst für ein Quiz oder ein fachbezogenes Hörbuch")                       
+    st.write("**Freizeit**")
+    if pfreetime == 2:
+        st.write ("Du hast eine gute Balance zwischen deinem Uni und deinem Privatleben. Das erhöht deine kognitive Leistungsfähigkeit. Weiter so!")
+    elif pfreetime == 1:
+        st.write ("Gönne dir etwas Abwechslung vom lernen, plane dieses Wochenende bewusst eine Aktivität ein die nichts mit der Uni zu tun hat.")
+    elif pfreetime == 0.5:
+        st.write("Es fehlt dir an der nötigen Balance zwischen Uni und Privatleben. Triff dich in den nächsten Tagen mit Freunden oder nimm dir heute Abend etwas Zeit für dich")    
 
-if pfood == 2:
-    st.write("Du ernährst dich ideal.Behalte deine Routine bei und achte auch eine ausreichende Hydrierung.")
-elif pfood == 1:
-    st.write("Eine gesunde Ernährung wirkt sich auf deinen Lernerfolg aus nutze Brainfood wie Nüsse oder Obst zwischen in den Lernpausen")
-elif pfood == 0.5:
-    st.write ("Ohne eine ausgewogene Ernährung, hat dein Körper nicht die benötigte Energie, iss 3 feste Mahlzeiten mit Früchten/Gemüse")
+    st.write("**Pendelzeit**")
+    if ppendel == 2: 
+        st.write("Du hast Glück mit deinem kurzen Fahrtweg, dies gibt dir mehr Zeit für Schlaf oder Freizeitaktivitäten.")
+    elif ppendel == 1:
+        st.write ("Nutze die Fahrt um mit Karteikarten zu lernen oder für ein kurzes Quiz.") 
+    elif ppendel == 0.5: 
+        st.write ("Du hast einen langen Fahrtweg, lass dich von dem nicht stressen. Nutze die Zeit bewusst für ein Quiz oder ein fachbezogenes Hörbuch")                       
 
-if psport == 2:
-    st.write ("Behalte die regelmässige Bewegung bei, sie fördert deine Durchblutung und hilft dir die Lerninhalte optimal aufzunehmen und konzentriert zu bleiben.")
-elif psport == 1:
-    st.write ("Mit Hilfe eines kurzen Spaziergangs oder einem 15-Minütigen Workout kannst du deine Konzentration weiter steigern und noch effizienter lernen.")
-elif psport == 0.5:
-    st.write ("Regelmässige Bewegung ist ein wichtiger Faktor für deinen Lernerfolg. Sie hilft dir, konzentriert zu bleiben. Versuche es heute mit einem 30-minütigen Spaziergang oder einem Workout")        
+    st.write("**Ernährung**")
+    if pfood == 2:
+        st.write("Du ernährst dich ideal.Behalte deine Routine bei und achte auch eine ausreichende Hydrierung.")
+    elif pfood == 1:
+        st.write("Eine gesunde Ernährung wirkt sich auf deinen Lernerfolg aus nutze Brainfood wie Nüsse oder Obst zwischen in den Lernpausen")
+    elif pfood == 0.5:
+        st.write ("Ohne eine ausgewogene Ernährung, hat dein Körper nicht die benötigte Energie, iss 3 feste Mahlzeiten mit Früchten/Gemüse")
+
+    st.write("**Sport**")
+    if psport == 2:
+        st.write ("Behalte die regelmässige Bewegung bei, sie fördert deine Durchblutung und hilft dir die Lerninhalte optimal aufzunehmen und konzentriert zu bleiben.")
+    elif psport == 1:
+        st.write ("Mit Hilfe eines kurzen Spaziergangs oder einem 15-Minütigen Workout kannst du deine Konzentration weiter steigern und noch effizienter lernen.")
+    elif psport == 0.5:
+        st.write ("Regelmässige Bewegung ist ein wichtiger Faktor für deinen Lernerfolg. Sie hilft dir, konzentriert zu bleiben. Versuche es heute mit einem 30-minütigen Spaziergang oder einem Workout")   
+else:
+    st.info("Fülle deine Angaben aus und klicke auf Bestätigen, um personalisierte Tipps zu erhalten.")     
