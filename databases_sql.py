@@ -41,31 +41,7 @@ def init_db():
         FOREIGN KEY (user_id) REFERENCES users(user_id)
     )
     """)
-# Tabelle für Prüfungen (Lernplan)
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS pruefungen (
-        pruefung_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        fach TEXT NOT NULL,
-        datum TEXT NOT NULL,
-        ects INTEGER DEFAULT 1,
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
-    )
-    """)
 
-    # Tabelle für gesperrte Zeitfenster (Lernplan)
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS zeitfenster (
-        zeitfenster_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        wochentag TEXT NOT NULL,
-        von TEXT NOT NULL,
-        bis TEXT NOT NULL,
-        beschreibung TEXT,
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
-    )
-    """)
-    
     DB.commit()
     DB.close()
 
@@ -140,55 +116,3 @@ def get_inputs_by_user(user_id):
 
     DB.close()
     return rows
-
-# Tinas Lernplan-Funktionen
-
-def add_pruefung(user_id, fach, datum, ects):
-    DB = sqlite3.connect(DB_NAME)
-    cursor = DB.cursor()
-    cursor.execute("""
-        INSERT INTO pruefungen (user_id, fach, datum, ects)
-        VALUES (?, ?, ?, ?)
-    """, (user_id, fach, datum, ects))
-    DB.commit()
-    DB.close()
-
-def get_pruefungen(user_id):
-    DB = sqlite3.connect(DB_NAME)
-    cursor = DB.cursor()
-    cursor.execute("SELECT * FROM pruefungen WHERE user_id = ?", (user_id,))
-    rows = cursor.fetchall()
-    DB.close()
-    return rows
-
-def delete_pruefung(pruefung_id):
-    DB = sqlite3.connect(DB_NAME)
-    cursor = DB.cursor()
-    cursor.execute("DELETE FROM pruefungen WHERE pruefung_id = ?", (pruefung_id,))
-    DB.commit()
-    DB.close()
-
-def add_zeitfenster(user_id, wochentag, von, bis, beschreibung):
-    DB = sqlite3.connect(DB_NAME)
-    cursor = DB.cursor()
-    cursor.execute("""
-        INSERT INTO zeitfenster (user_id, wochentag, von, bis, beschreibung)
-        VALUES (?, ?, ?, ?, ?)
-    """, (user_id, wochentag, von, bis, beschreibung))
-    DB.commit()
-    DB.close()
-
-def get_zeitfenster(user_id):
-    DB = sqlite3.connect(DB_NAME)
-    cursor = DB.cursor()
-    cursor.execute("SELECT * FROM zeitfenster WHERE user_id = ?", (user_id,))
-    rows = cursor.fetchall()
-    DB.close()
-    return rows
-
-def delete_zeitfenster(zeitfenster_id):
-    DB = sqlite3.connect(DB_NAME)
-    cursor = DB.cursor()
-    cursor.execute("DELETE FROM zeitfenster WHERE zeitfenster_id = ?", (zeitfenster_id,))
-    DB.commit()
-    DB.close()
