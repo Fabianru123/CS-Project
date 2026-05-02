@@ -1,75 +1,118 @@
-# import the relevant library
 import sqlite3
 
+DB_NAME = "predicted_inputs.db"
 
-# connect to the database
-DB = sqlite3.connect("predicted_inputs.db")
 
-# create a cursor to send SQL commands to the database
-cursor = DB.cursor()
+# Init DB
+def init_db():
+    DB = sqlite3.connect(DB_NAME)
+    cursor = DB.cursor()
 
-# create the input table, Quelle für 'INTEGER PRIMARY KEY AUTOINCREMENT': CODEX
-cursor.execute(
-    """
+    # Table users
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_name TEXT UNIQUE NOT NULL
+    )
+    """)
+
+    # Table input
+    cursor.execute("""
     CREATE TABLE IF NOT EXISTS input (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        age TEXT,
+        input_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        age INTEGER,
         studien TEXT,
-        schlaf INTEGER,
-        lernzeit INTEGER,
-        stress TEXT,
-        bild INTEGER,
-        gesund TEXT,
-        hilfe INTEGER,
-        pausen INTEGER,
-        fail INTEGER,
-        freetime INTEGER,
-        goout TEXT,
-        pendel INTEGER,
-        food TEXT,
-        sport INTEGER
+        pschlaf INTEGER,
+        plernzeit INTEGER,
+        pstress INTEGER,
+        pbild INTEGER,
+        pgesund INTEGER,
+        philfe INTEGER,
+        ppausen INTEGER,
+        pfail INTEGER,
+        pfreetime INTEGER,
+        pgoout INTEGER,
+        ppendel INTEGER,
+        pfood INTEGER,
+        psport INTEGER,
+        score REAL,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
     )
-    """
-)
-
-
-def add_input(name, age, studien, schlaf, lernzeit, stress, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport):
-    cursor.execute(
-        """
-        INSERT INTO input (
-            name,
-            age, 
-            studien,
-            schlaf,
-            lernzeit,
-            stress,
-            bild,
-            gesund,
-            hilfe,
-            pausen,
-            fail,
-            freetime,
-            goout,
-            pendel,
-            food,
-            sport
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (name, age, studien, schlaf, lernzeit, stress, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport),
-    )
+    """)
 
     DB.commit()
+    DB.close()
 
 
+# User 
+def get_or_create_user(user_name):
+    DB = sqlite3.connect(DB_NAME)
+    cursor = DB.cursor()
+
+    cursor.execute("SELECT user_id FROM users WHERE user_name = ?", (user_name,))
+    result = cursor.fetchone()
+
+    if result:
+        user_id = result[0]
+    else:
+        cursor.execute("INSERT INTO users (user_name) VALUES (?)", (user_name,))
+        DB.commit()
+        user_id = cursor.lastrowid
+
+    DB.close()
+    return user_id
+
+
+# Add Input
+def add_input(user_id, age, studien, pschlaf, plernzeit, pstress, pbild,
+              pgesund, philfe, ppausen, pfail, pfreetime, pgoout,
+              ppendel, pfood, psport, score):
+
+    DB = sqlite3.connect(DB_NAME)
+    cursor = DB.cursor()
+
+    cursor.execute("""
+        INSERT INTO input (
+            user_id, age, studien, pschlaf, plernzeit, pstress, pbild,
+            pgesund, philfe, ppausen, pfail, pfreetime, pgoout,
+            ppendel, pfood, psport, score
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """,
+    (user_id, age, studien, pschlaf, plernzeit, pstress, pbild,
+        pgesund, philfe, ppausen, pfail, pfreetime, pgoout,
+        ppendel, pfood, psport, score))
+
+    DB.commit()
+    DB.close()
+
+
+# get all inputs
 def get_inputs():
-    """Get all rows from the input table."""
-    cursor.execute(
-        """
+    DB = sqlite3.connect(DB_NAME)
+    cursor = DB.cursor()
+
+    cursor.execute("SELECT * FROM input")
+    rows = cursor.fetchall()
+
+    DB.close()
+    return rows
+
+
+# get inputs just for one user
+def get_inputs_by_user(user_id):
+    DB = sqlite3.connect(DB_NAME)
+    cursor = DB.cursor()
+
+    cursor.execute("""
         SELECT *
         FROM input
-        """
-    )
+        WHERE user_id = ?
+    """, (user_id,))
 
-    return cursor.fetchall()
+    rows = cursor.fetchall()
+
+    DB.close()
+    return rows
