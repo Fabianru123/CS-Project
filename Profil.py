@@ -17,17 +17,6 @@ st.write("Ein Überblick über deinen aktuellen Stand im Vergleich zu anderen so
 
 st.divider ()
 
-# TEMPORARY LOGIN
-username = st.text_input("User Name")                    #modified by H.
-if st.button("Login"):
-    if username.strip() == "":
-        st.warning("Bitte gib einen User Name ein.")
-    else:
-        user_id = get_or_create_user(username)
-        st.session_state["user_id"] = user_id
-        st.session_state["username"] = username
-        st.success(f"Eingeloggt als {username}")   
-
 
 
 if "user_id" not in st.session_state:
@@ -92,7 +81,7 @@ fig1.add_trace(
 )
 #add dots
 fig1.add_trace(
-    go.Scatter(x = variables_x, y = values_others, mode="markers", name="Andere")
+    go.Scatter(x = variables_x, y = values_others, mode="lines+markers", name="Andere")
 )
 
 fig1.update_layout(
