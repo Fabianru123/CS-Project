@@ -1,5 +1,7 @@
-# profile page including diagram variable_score/other users + 
-# diagram "Scoreverlauf" score/time
+#------------------------------------------------------------
+# Profile Page: Comparison of Variable Scores with Other Users 
+# + Score Evolution over Time
+#------------------------------------------------------------
 
 import streamlit as st
 import sqlite3
@@ -9,6 +11,10 @@ import plotly.graph_objects as go
 from databases_sql import init_db, get_or_create_user
 init_db()
 
+#---------------------
+# Layout "Profil" page
+#---------------------
+
 st.title("Profil")
 
 st.divider()
@@ -17,7 +23,9 @@ st.write("Ein Überblick über deinen aktuellen Stand im Vergleich zu anderen so
 
 st.divider ()
 
-
+#---------------------------
+# Check if user is logged in
+#---------------------------
 
 if "user_id" not in st.session_state:
     st.warning("Bitte logge dich zuerst ein, um deine Entwicklung zu verfolgen. ")
@@ -93,9 +101,9 @@ fig1.update_layout(
 st.plotly_chart(fig1)
 
 
-#---------------------------------------
-#VISUALIZATION "SCOREVERLAUF" (Figure 2)
-#---------------------------------------
+#----------------------------------------
+# VISUALIZATION "SCOREVERLAUF" (Figure 2)
+#----------------------------------------
 
 fig2 = go.Figure()
 
