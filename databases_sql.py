@@ -1,9 +1,16 @@
+#========================================================================================
+# Database Module: Manages SQLite setup, user identification, and storage of user inputs
+#========================================================================================
+
 import sqlite3
 
 DB_NAME = "predicted_inputs.db"
 
 
-# Init DB
+#================
+# Database Setup
+#================
+
 def init_db():
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
@@ -46,7 +53,11 @@ def init_db():
     DB.close()
 
 
-# User 
+#=================
+# User Management
+#=================
+
+# Retrieves an existing user ID or creates a new user if not found
 def get_or_create_user(user_name):
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
@@ -65,7 +76,11 @@ def get_or_create_user(user_name):
     return user_id
 
 
-# Add Input
+#==================
+# Input Management
+#==================
+
+# Stores a new set of user inputs and the corresponding score.
 def add_input(user_id, age, studien, pschlaf, plernzeit, pstress, pbild,
               pgesund, philfe, ppausen, pfail, pfreetime, pgoout,
               ppendel, pfood, psport, score):
@@ -89,7 +104,10 @@ def add_input(user_id, age, studien, pschlaf, plernzeit, pstress, pbild,
     DB.close()
 
 
-# get all inputs
+#================
+# Data Retrieval
+#================
+
 def get_inputs():
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
@@ -101,7 +119,7 @@ def get_inputs():
     return rows
 
 
-# get inputs just for one user
+# Returns all stored inputs for a specific user
 def get_inputs_by_user(user_id):
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
