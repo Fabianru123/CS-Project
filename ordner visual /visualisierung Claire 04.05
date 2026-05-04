@@ -1,24 +1,46 @@
-#Code Claire: Welcoming Page, Variablen, Berechnung des Scores, Darstellung als Spider Web und Pass Probability, Darstellung der Tipps 
+#==========
+# HOMEPAGE
+#==========
 
-#from databases_sql import add_input #added by Helena
+
+#==================================
+# IMPORT AND DATABASE INITILIZATION
+#==================================
+
+from databases_sql import add_input, init_db, get_or_create_user #added by Helena
+init_db()
 
 import streamlit as st
 
 st.set_page_config(layout = "centered")
 
-#code sidebar 
+
+#=======================
+# SIDEBAR AND USER LOGIN
+#=======================
 
 with st.sidebar:
     st.write("Score")
 
     st.subheader("Deine persönlichen Angaben")
 
-    name = st.text_input("Name")                            #modified by H.
+    username = st.text_input("User Name")                    
+    if st.button("Login"):
+        if username.strip() == "":
+            st.warning("Bitte gib einen User Name ein.")
+        else:
+            user_id = get_or_create_user(username)
+            st.session_state["user_id"] = user_id
+            st.session_state["username"] = username
+            st.success(f"Eingeloggt als {username}")                           #modified by H.
     age = st.number_input("Alter", 0, None, None, 1)        #modified by H.
     studien = st.text_input("Studiengang")
 
 
-#code title and welcoming page, hier geht es nur um die Visualisierung 
+
+#================
+# WELCOME SECTION
+#================
 
 col11, col12, col13 = st.columns(3)
 
@@ -34,7 +56,10 @@ st.write("Hier kannst deinen Score entdecken und personalisierte Tipps bekommen,
 
 st.divider ()
 
-#code variablen and sliders 
+
+#====================
+# SCORE INPUT SECTION
+#====================
 
 st.subheader("Die Berechnung deines Scores")
 #Der folgende Satz wurde mit st.markdown statt mit st.write geschrieben, weil st.write unstabil war 
@@ -42,9 +67,19 @@ st.markdown("Gib hier deine Variablen ein, damit du deinen Score entdecken kanns
             unsafe_allow_html = True)
 st.write("")
 
+
+#=========================
+# INITIALIZE SESSION STATE
+#=========================
+
 #Initialisierung der Punkte, sie werden für die Graphiken gespeichert (aber nicht die einzelnen Punkte)
 if "punkte" not in st.session_state:
     st.session_state.punkte = 0
+
+
+#=====================
+# USER INPUT VARIABLES
+#=====================
 
 #Darstellung der Variablen, keine Berechnung erfolgt an dieser Stelle (es geht nur darum, dass die Users ihre Variablen eingeben können)
 
@@ -114,6 +149,11 @@ sport = st.slider("Sport *(in Stunden pro Woche)*", 0, 40)
 #der Button wird verwendet, damit die Punkte nicht wegen der Session verloren gehen 
 # und um zu vermeiden, dass die Punkte mehrmals addiert werden, wenn der User seine Einträge ändert 
 
+
+#========================
+# SCORE CALCULATION RULES
+#========================
+
 #Hier wurde immer die gleiche Idee angewandt: eine bestimmte Variable gibt eine bestimmte Anzahl an Punkten, wenn sie sich in einem bestimmten Bereich befindet
 #Beispiel: mehr als 8 Stunden Schlaf pro Nacht: 4 Punkte (low risk), von 6 bis 8 Stunden Schlaf pro Nacht: 2 Punkte (medium risk), weniger als 6 Stunden: 1 Punkt (high risk)
 #Low risk entspricht dem bestem Mass für den Score, d.h. dass man es nicht besser machen könnte
@@ -132,6 +172,10 @@ sport = st.slider("Sport *(in Stunden pro Woche)*", 0, 40)
 # Anzahl nicht bestandener Fächer in der Vergangenheit, Freizeit und Aktivitäten, Ausgang und Zustand nach dem Ausgang, Pendelzeit zwischen der Wohnung und der Uni, 
 #Ernähung und Sport 
 
+
+#============================
+# SAVE USER INPUT TO DATABASE
+#============================
 
 if st.button("Bestätigen", key = "button"):
     if schlaf >= 8:
@@ -228,10 +272,19 @@ if st.button("Bestätigen", key = "button"):
     else:
         psport = 0.5    
 
-    #add_input(name, age, studien, schlaf, lernzeit, stress, bild, gesund, hilfe, pausen, fail, freetime, goout, pendel, food, sport)
+    st.session_state.punkte = pschlaf + plernzeit + pstress1 + pbild + pgesund + philfe + ppausen + pfail + pfreetime + pgoout + ppendel + pfood + psport 
 
+    score = 2.5 * st.session_state.punkte 
+    # 2.5 = 100 / 40 = Max Score / Anzhal max Punkte nach der aktuellen Variablen 
+    # 100 = max Score und entspricht der maximalen Wahrscheinlichkeit 
 
-st.session_state.punkte = pschlaf + plernzeit + pstress1 + pbild + pgesund + philfe + ppausen + pfail + pfreetime + pgoout + ppendel + pfood + psport 
+    if "user_id" not in st.session_state:
+        st.warning("Bitte logge dich zuerst ein.")
+    else:
+        add_input(
+            st.session_state["user_id"], age, studien, pschlaf, plernzeit, pstress1, pbild, pgesund, philfe, ppausen, pfail, pfreetime, pgoout, ppendel, pfood, psport, score
+        )
+        st.success ("Daten gespeichert.")
 
 #Hier wird der Score dargestellt, zuerst in einem Spider Web / Radar Chart, damit der User sehen kann, welche Variablen bei ihm gut laufen und welche er noch verbessern kann 
 #Danach wird der Score als Pass Probability gezeigt
@@ -239,14 +292,16 @@ st.session_state.punkte = pschlaf + plernzeit + pstress1 + pbild + pgesund + phi
 st.divider ()
 
 
+#================
+# RESULTS SECTION
+#================
+
 st.subheader("Deine Ergebnisse")   
 st.write("Hier erkennst du auf einen Blick, was bereits gut läuft und wo du dich noch verbessern kannst:")
 
-
 score = 2.5 * st.session_state.punkte 
-# 2.5 = 100 / 40 = Max Score / Anzhal max Punkte nach der aktuellen Variablen 
-# 100 = max Score und entspricht der maximalen Wahrscheinlichkeit 
-
+    # 2.5 = 100 / 40 = Max Score / Anzhal max Punkte nach der aktuellen Variablen 
+    # 100 = max Score und entspricht der maximalen Wahrscheinlichkeit 
 
 with st.sidebar: 
     st.write("Dein Score:", score)
@@ -254,9 +309,11 @@ with st.sidebar:
 col21, col22 = st.columns(2) 
 
 
-#Quelle: ChatGPT für die Struktur 
+#=========================
+# RADAR CHAT VISUALIZATION
+#=========================
 
-#Darstellung des Scores als Spider Web / Radar Chart 
+#Quelle: ChatGPT für die Struktur 
 
 with col21: 
 
@@ -286,7 +343,10 @@ with col21:
     st.plotly_chart(fig_radar)
 
 
-#Darstellung des Scores als Pass Probability 
+#=======================
+# PASS PROBABILITY GAUGE
+#=======================
+
 #Quelle ChatGPT für die Struktur 
 
 with col22: 
@@ -317,6 +377,10 @@ with col22:
     st.plotly_chart(fig_gauge)
     st.write("Du hast eine Pass Probability von", score,"%")
 
+
+#=============================
+# PERSONALIZED RECOMMENDATIONS
+#=============================
 
 #Hier werden die Tipps angezeigt 
 #Die Tipps basieren sich auf Studien, die unten erwähnt werden 
@@ -410,6 +474,10 @@ elif psport == 0.5:
     tipps.append("Regelmässige Bewegung ist ein wichtiger Faktor für deinen Lernerfolg. Sie hilft dir, konzentriert zu bleiben. Versuche es heute mit einem 30-minütigen Spaziergang oder einem Workout")        
 
 
+#===================================
+# DISPLAY RECOMMENDATIONS IN COLUMNS
+#===================================
+
 #Hier werden die Tipps gemäss der Liste gezeigt 
 
 cols = st.columns(2)
@@ -420,6 +488,10 @@ for i, tipp in enumerate(tipps):
 
 st.divider() 
 st.write("")
+
+#======================
+# FINAL SUCCESS MESSAGE
+#======================
 
 st.subheader("Wir wünschen dir ganz viel Erfolg!") 
 
