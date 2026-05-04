@@ -12,6 +12,25 @@ from databases_sql import init_db, get_or_create_user
 init_db()
 
 
+#=========
+# Sidebar
+#=========
+
+with st.sidebar:
+
+    username = st.text_input("User Name")                    
+    if st.button("Login"):
+        if username.strip() == "":
+            st.warning("Bitte gib einen User Name ein.")
+        else:
+            user_id = get_or_create_user(username)
+            st.session_state["user_id"] = user_id
+            st.session_state["username"] = username
+            st.success(f"Eingeloggt als {username}") 
+    if "user_id" in st.session_state:
+        st.success(f"Erfolgreich eingeloggt als {st.session_state['username']}.")
+
+
 #======================
 # Layout "Profil" page
 #======================
@@ -39,14 +58,57 @@ df = pd.read_sql("SELECT * FROM input", DB)
 DB.close()
 
 
-#========================================
-# VISUALIZATION USER VS OTHERS (Figure 1)
-#========================================
+
+#===========
+# DATAFRAMES
+#===========
 
 #create DataFrames
 df_user = df[df["user_id"] == user_id]
 df_others = df[df["user_id"] != user_id]
 
+
+
+#===========
+# DASHBOARD
+#===========
+
+if df_user.empty:
+    st.info("Noch keine Daten vorhanden. Fülle zuerst deine Angaben aus.")
+else:
+    df_user_sorted = df_user.sort_values("created_at")
+    last_entry = df_user_sorted.iloc[-1]
+
+    age_values = df_user_sorted["age"].dropna()
+    studien_values = df_user_sorted["studien"].replace("", pd.NA).dropna()
+
+    if age_values.empty:
+        current_age = "-"
+    else:
+        current_age = int(age_values.iloc[-1])
+    
+    if studien_values.empty:
+
+        current_studien = "-"
+    else:
+        current_studien = studien_values.iloc[-1]
+
+    st.markdown("#### Persönliche Übersicht")
+
+    st.markdown(f"Willkommen zurück {st.session_state['username']}!")
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Alter", current_age)
+    col2.metric("Studiengang", current_studien)
+    col3.metric("Letzter Score", last_entry['score'])
+
+st.divider()
+
+
+
+#========================================
+# VISUALIZATION USER VS OTHERS (Figure 1)
+#========================================
 
 #mean for every variable
 mean_user_schlaf = df_user["pschlaf"].mean()
@@ -88,11 +150,23 @@ variables_x = ["Schlaf", "Lernzeit", "Stress", "Bildschirmzeit", "Gesundheitszus
 fig1 = go.Figure()
 #add bars
 fig1.add_trace(
-    go.Bar(x = variables_x, y = values_user, name="Deine Daten")
+    go.Bar(
+        x = variables_x, 
+        y = values_user, 
+        name="Deine Daten",
+        marker=dict(color="#0d4200")
+        )
 )
 #add dots
 fig1.add_trace(
-    go.Scatter(x = variables_x, y = values_others, mode="lines+markers", name="Andere")
+    go.Scatter(
+        x = variables_x, 
+        y = values_others, 
+        mode="lines+markers", 
+        name="Andere",
+        line=dict(color="#8a9a8b"),
+        marker=dict(color="#8a9a8b")
+        )
 )
 
 fig1.update_layout(
@@ -110,12 +184,17 @@ st.plotly_chart(fig1)
 fig2 = go.Figure()
 
 df_user_sorted = df_user.sort_values("created_at")
+df_user_sorted["created_at"] = pd.to_datetime(df_user_sorted["created_at"])
+df_user_sorted["created_at"] = df_user_sorted["created_at"].dt.tz_localize("UTC")
+df_user_sorted["created_at"] = df_user_sorted["created_at"].dt.tz_convert("Europe/Zurich")
+df_user_sorted["date_clean"] = df_user_sorted["created_at"].dt.strftime("%-d. %B %Y %H:%M")
 
 fig2.add_trace(
     go.Scatter(
-        x = df_user_sorted["created_at"],
+        x = df_user_sorted["date_clean"],
         y = df_user_sorted["score"],
-        mode = "lines+markers"
+        mode = "lines+markers",
+        marker=dict(color="#0d4200")
     )
 )
 
