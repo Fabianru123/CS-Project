@@ -292,6 +292,16 @@ if st.button("Bestätigen", key = "button"):
 st.divider ()
 
 
+# ==================================================
+# ML Pass Probalitly calculation in Regression Model
+# ==================================================
+
+    
+points_dict = {"pschlaf": pschlaf, "plernzeit": plernzeit, "pstress": pstress1, "pbild": pbild, "pgesund": pgesund, "philfe": philfe, "ppausen": ppausen, "pfail": pfail, "pfreetime": pfreetime, "pgoout": pgoout, "ppendel": ppendel, "pfood": pfood, "psport": psport}
+st.session_state["pass_probability"] = predict_pass_probability(points_dict)
+
+
+
 #================
 # RESULTS SECTION
 #================
