@@ -257,13 +257,43 @@ if "user_id" in st.session_state:
         col2.metric("Durchschnitt", rounded_mean)
         col3.metric("Letzte Note", last_grade)
 
+        #----------------
+        # FIGURE 3: NOTES
+        #----------------
+
         exam_df = exam_df.rename(columns={
             "exam_name": "Prüfung",
             "grade": "Note",
             "date_clean": "Datum"
         })
 
-        st.dataframe(exam_df[["Prüfung", "Note", "Datum"]])
+        fig3 = go.Figure()
+        fig3.add_trace(
+            go.Bar(
+                x = exam_df["Note"],
+                y = exam_df["Prüfung"],
+                orientation = 'h',
+                marker=dict(color="#8a9a8b"),
+                name="Deine Noten"
+            )
+        )
+
+        # The user can see the mean of his grades
+        fig3.add_vline(
+            x=rounded_mean,
+            line_dash="dash",
+            line_color="#0d4200",
+            annotation_text="Dein Durchschnitt",
+            annotation_position="top"
+        )
+
+        fig3.update_layout(
+            title = "Deine Prüfungsergebnisse im Überblick",
+            xaxis_title="Note",
+            yaxis_title="Prüfung",
+        )
+
+        st.plotly_chart(fig3)
 
 else:
     st.info("Bitte logge dich zuerst ein.")
