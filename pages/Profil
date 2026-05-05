@@ -8,7 +8,7 @@ import sqlite3
 import pandas as pd
 import plotly.graph_objects as go
 
-from databases_sql import init_db, get_or_create_user
+from databases_sql import init_db, get_or_create_user, add_exam_result
 init_db()
 
 
@@ -205,3 +205,25 @@ fig2.update_layout(
 )
 
 st.plotly_chart(fig2)
+
+
+#==============
+# EXAM RESULTS
+#==============
+
+st.subheader("Prüfungsergebnisse")
+
+st.write("Du kannst hier deine Ergebnisse eingeben, um deine Fortschritte zu verfolgen.")
+
+exam_name = st.text_input("Name der Prüfung")
+
+grade = st.number_input("Deine Note")
+
+if st.button("Bestätigen"):
+    if exam_name.strip() == "":
+        st.warning("Bitte gib den Namen der Prüfung und die Note ein.")
+    elif grade == 0:
+        st.warning("Bitte gib die Note ein.")
+    else:
+        add_exam_result(st.session_state["user_id"], exam_name, grade)
+        st.success("Ergebnis gespeichert.")    
