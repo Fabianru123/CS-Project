@@ -170,3 +170,19 @@ def add_exam_result(user_id, exam_name, grade):
 
     DB.commit()
     DB.close()
+
+# Returns all stored inputs for a specific user
+def get_exam_results_by_user(user_id):
+    DB = sqlite3.connect(DB_NAME)
+    cursor = DB.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM exam_results
+        WHERE user_id = ?
+    """, (user_id,))
+
+    rows = cursor.fetchall()
+
+    DB.close()
+    return rows
