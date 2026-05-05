@@ -58,6 +58,7 @@ def init_db():
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     exam_name TEXT, 
     grade REAL,
+    ects REAL,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
     )
     
@@ -156,17 +157,17 @@ def get_inputs_by_user(user_id):
 # EXAM RESULT MANAGEMENT
 #=======================
 
-def add_exam_result(user_id, exam_name, grade):
+def add_exam_result(user_id, exam_name, grade, ects):
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
 
     cursor.execute("""
         INSERT INTO exam_results (
-            user_id, exam_name, grade
+            user_id, exam_name, grade, ects
         )
-        VALUES (?, ?, ?)
+        VALUES (?, ?, ?, ?)
     """,
-    (user_id, exam_name, grade))
+    (user_id, exam_name, grade, ects))
 
     DB.commit()
     DB.close()
