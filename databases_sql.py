@@ -49,6 +49,22 @@ def init_db():
     )
     """)
 
+
+     # Table exam results
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS exam_results (
+    exam_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    exam_name TEXT, 
+    grade REAL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    )
+    
+    """)
+
+        
+
     DB.commit()
     DB.close()
 
@@ -134,3 +150,23 @@ def get_inputs_by_user(user_id):
 
     DB.close()
     return rows
+
+
+#=======================
+# EXAM RESULT MANAGEMENT
+#=======================
+
+def add_exam_result(user_id, exam_name, grade):
+    DB = sqlite3.connect(DB_NAME)
+    cursor = DB.cursor()
+
+    cursor.execute("""
+        INSERT INTO exam_results (
+            user_id, exam_name, grade
+        )
+        VALUES (?, ?, ?)
+    """,
+    (user_id, exam_name, grade))
+
+    DB.commit()
+    DB.close()
