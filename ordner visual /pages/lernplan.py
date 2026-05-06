@@ -378,7 +378,7 @@ else:
         st.warning("Heute ist viel eingeplant. Plane genügend Pausen ein.")
 
     else:
-        st.error("Der Plan ist unrealistisch. Reduziere freie Tage oder starte früher.")
+        st.error("Der Plan ist unrealistisch. Du hättest früher beginnen sollen.")
 
 
 #================
