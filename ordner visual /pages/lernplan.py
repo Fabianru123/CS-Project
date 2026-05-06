@@ -1,214 +1,445 @@
+#==========
+# LERNPLAN
+#==========
+
+
+#==================================
+# IMPORT AND DATABASE INITIALIZATION
+#==================================
+
 import sys
-sys.path.append("../")  # Searches for databases_sql.py in the parent folder
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+from datetime import date, timedelta
 
 import streamlit as st
-from datetime import date, timedelta
-from databases_sql import init_db, add_pruefung, get_pruefungen, delete_pruefung
+
+from databases_sql import (
+    init_db,
+    add_pruefung,
+    get_pruefungen,
+    delete_pruefung
+)
 
 init_db()
 
+
+#================
+# PAGE TITLE
+#================
+
 st.title("Lernplan")
+st.write("Hier kannst du deine Prüfungen eintragen und deinen Lernplan bis zur Prüfung erstellen.")
 st.divider()
 
-# ==============================
+
+#================
 # LOGIN CHECK
-# ==============================
+#================
 
 if "user_id" not in st.session_state:
-    st.warning("Bitte logge dich zuerst auf der Homepage-Seite ein.")
+    st.warning("Bitte logge dich zuerst auf der Homepage ein.")
     st.stop()
 
 user_id = st.session_state["user_id"]
 
-# ==============================
-# ENTER EXAMS
-# ==============================
+
+#=========================
+# INITIALIZE SESSION STATE
+#=========================
+
+# Progress is saved temporarily while the app is running
+if "exam_progress" not in st.session_state:
+    st.session_state["exam_progress"] = {}
+
+# Free dates are also saved temporarily
+if "freie_daten" not in st.session_state:
+    st.session_state["freie_daten"] = []
+
+# This variable saves which day is currently shown
+if "study_day_index" not in st.session_state:
+    st.session_state["study_day_index"] = 0
+
+
+#================
+# ADD EXAMS
+#================
 
 st.subheader("Deine Prüfungen")
-st.caption("Trage hier deine Prüfungen ein. 1 ECTS = 30 Stunden Lernaufwand.")
+st.caption("Trage deine Prüfungen ein. 1 ECTS entspricht ungefähr 30 Stunden Lernaufwand.")
 
-with st.form("pruefung_form"):
+with st.form("exam_form"):
+
     col1, col2, col3 = st.columns(3)
+
     with col1:
         fach = st.text_input("Fach")
+
     with col2:
-        datum = st.date_input("Datum", min_value=date.today())
+        datum = st.date_input("Prüfungsdatum", min_value=date.today())
+
     with col3:
         ects = st.number_input("ECTS", min_value=1, max_value=10, value=3)
-    submitted = st.form_submit_button("Prüfung hinzufügen")
-    if submitted and fach.strip() != "":
-        add_pruefung(user_id, fach, str(datum), ects)
-        st.success(f"{fach} wurde hinzugefügt!")
-        st.rerun()
 
-# Load exams from database
+    fortschritt = st.selectbox(
+        "Wie weit bist du schon?",
+        (
+            "Noch nicht begonnen",
+            "Etwas gemacht",
+            "Ungefähr die Hälfte",
+            "Fast fertig",
+            "Nur noch Wiederholung"
+        )
+    )
+
+    submitted = st.form_submit_button("Prüfung hinzufügen")
+
+    if submitted:
+        if fach.strip() == "":
+            st.warning("Bitte gib ein Fach ein.")
+        else:
+            add_pruefung(user_id, fach, str(datum), ects)
+
+            # Save progress with subject and date as key
+            progress_key = f"{fach}_{datum}"
+            st.session_state["exam_progress"][progress_key] = fortschritt
+
+            st.success(f"{fach} wurde hinzugefügt!")
+            st.rerun()
+
+
+#================
+# LOAD EXAMS
+#================
+
 pruefungen = get_pruefungen(user_id)
 
 if not pruefungen:
     st.info("Noch keine Prüfungen eingetragen.")
     st.stop()
 
-heute = date.today()
+today = date.today()
 
-# Sort exams by date, most urgent first
-pruefungen_sortiert = sorted(pruefungen, key=lambda x: date.fromisoformat(x[3]))
+# Sort exams by date
+pruefungen_sortiert = sorted(
+    pruefungen,
+    key=lambda x: date.fromisoformat(x[3])
+)
 
-# Show exams with delete button
+last_exam_date = max(
+    date.fromisoformat(p[3])
+    for p in pruefungen_sortiert
+)
+
+
+#================
+# FREE DATES
+#================
+
+st.divider()
+st.subheader("Freie Tage")
+
+st.write("Wähle Daten aus, an denen du nicht lernen kannst.")
+
+possible_dates = []
+current_day = today
+
+while current_day <= last_exam_date:
+    possible_dates.append(current_day)
+    current_day = current_day + timedelta(days=1)
+
+freie_daten = st.multiselect(
+    "Nicht verfügbare Tage",
+    possible_dates,
+    default=st.session_state["freie_daten"],
+    format_func=lambda x: x.strftime("%d.%m.%Y")
+)
+
+st.session_state["freie_daten"] = freie_daten
+
+
+#================
+# EXAM OVERVIEW
+#================
+
+st.divider()
+st.subheader("Übersicht deiner Prüfungen")
+
 for p in pruefungen_sortiert:
+
     pruefung_id, uid, fach_name, datum_str, ects_val = p
-    pruefungs_datum = date.fromisoformat(datum_str)
-    tage_bis = (pruefungs_datum - heute).days
-    col1, col2, col3, col4 = st.columns([3, 2, 1, 1])
+
+    exam_date = date.fromisoformat(datum_str)
+    days_left = (exam_date - today).days
+
+    progress_key = f"{fach_name}_{exam_date}"
+
+    if progress_key in st.session_state["exam_progress"]:
+        progress_text = st.session_state["exam_progress"][progress_key]
+    else:
+        progress_text = "Noch nicht begonnen"
+
+    # Calculate total hours
+    total_hours = ects_val * 30
+
+    # Reduce total hours depending on progress
+    if progress_text == "Noch nicht begonnen":
+        remaining_hours = total_hours
+    elif progress_text == "Etwas gemacht":
+        remaining_hours = total_hours * 0.75
+    elif progress_text == "Ungefähr die Hälfte":
+        remaining_hours = total_hours * 0.5
+    elif progress_text == "Fast fertig":
+        remaining_hours = total_hours * 0.25
+    else:
+        remaining_hours = total_hours * 0.1
+
+    remaining_hours = round(remaining_hours, 1)
+
+    col1, col2, col3, col4, col5, col6 = st.columns([3, 2, 1, 1, 2, 1])
+
     with col1:
         st.write(f"**{fach_name}**")
+
     with col2:
-        st.write(pruefungs_datum.strftime("%d.%m.%Y"))
+        st.write(exam_date.strftime("%d.%m.%Y"))
+
     with col3:
-        st.write(f"{tage_bis} Tage")
+        st.write(f"{days_left} Tage")
+
     with col4:
-        if st.button("Löschen", key=f"del_{pruefung_id}"):
+        st.write(f"{ects_val} ECTS")
+
+    with col5:
+        st.write(f"{remaining_hours} h offen")
+
+    with col6:
+        if st.button("Löschen", key=f"delete_{pruefung_id}"):
             delete_pruefung(pruefung_id)
             st.rerun()
 
+
+#=======================
+# STUDY PLAN NAVIGATION
+#=======================
+
 st.divider()
+st.subheader("Dein Lernplan")
 
-# ==============================
-# EXAM OVERVIEW
-# ==============================
+total_days = (last_exam_date - today).days + 1
 
-st.subheader("Übersicht deiner Prüfungen")
+if total_days <= 0:
+    st.success("Alle Prüfungen sind vorbei.")
+    st.stop()
 
-def berechne_status(tage_bis):
-    """Returns urgency status based on days remaining until exam."""
-    if tage_bis <= 0:
-        return "Vorbei"
-    elif tage_bis <= 7:
-        return "Dringend"
-    elif tage_bis <= 21:
-        return "Bald"
-    else:
-        return "Gut geplant"
+if st.session_state["study_day_index"] >= total_days:
+    st.session_state["study_day_index"] = total_days - 1
 
-def berechne_farbe(tage_bis):
-    """Returns a color based on urgency."""
-    if tage_bis <= 0:
-        return "gray"
-    elif tage_bis <= 7:
-        return "red"
-    elif tage_bis <= 21:
-        return "orange"
-    else:
-        return "green"
+day_index = st.session_state["study_day_index"]
+selected_day = today + timedelta(days=day_index)
 
-for p in pruefungen_sortiert:
-    pruefung_id, uid, fach_name, datum_str, ects_val = p
-    pruefungs_datum = date.fromisoformat(datum_str)
-    tage_bis = (pruefungs_datum - heute).days
-    status = berechne_status(tage_bis)
-    farbe = berechne_farbe(tage_bis)
+col1, col2, col3 = st.columns([1, 2, 1])
 
-    col1, col2, col3, col4, col5 = st.columns([3, 2, 1, 1, 1])
-    with col1:
-        st.write(f"**{fach_name}**")
-    with col2:
-        st.write(pruefungs_datum.strftime("%d.%m.%Y"))
-    with col3:
-        st.write(f"{tage_bis} Tage")
-    with col4:
-        st.write(f"{ects_val} ECTS")
-    with col5:
-        # Show colored status badge
-        st.markdown(
-            f"<span style='background-color:{farbe}; color:white; padding:3px 8px; border-radius:5px; font-size:12px;'>{status}</span>",
-            unsafe_allow_html=True
-        )
+with col1:
+    if st.button("← Zurück"):
+        if day_index > 0:
+            st.session_state["study_day_index"] = st.session_state["study_day_index"] - 1
+            st.rerun()
+
+with col2:
+    st.markdown(
+        f"<h3 style='text-align:center;'>Tag {day_index + 1} von {total_days}</h3>",
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        f"<p style='text-align:center;'>{selected_day.strftime('%d.%m.%Y')}</p>",
+        unsafe_allow_html=True
+    )
+
+with col3:
+    if st.button("Weiter →"):
+        if day_index < total_days - 1:
+            st.session_state["study_day_index"] = st.session_state["study_day_index"] + 1
+            st.rerun()
+
+
+#================
+# DAILY STUDY PLAN
+#================
 
 st.divider()
 
-# ==============================
-# DAILY RECOMMENDATION
-# ==============================
+total_hours_today = 0
 
-st.subheader("Was lernst du heute?")
-st.write(f"**{heute.strftime('%A, %d.%m.%Y')}**")
-st.write("")
+if selected_day in freie_daten:
 
-def berechne_stunden_heute(noch_stunden, tage_bis):
-    """
-    Calculates recommended study hours for today.
-    Distributes remaining hours evenly across remaining days.
-    Minimum 0.5h, maximum 4h per subject per day.
-    """
-    if tage_bis <= 0:
-        return 0
-    stunden = round(noch_stunden / tage_bis, 1)
-    return max(0.5, min(stunden, 4.0))
+    st.info("Dieser Tag ist als freier Tag eingeplant.")
 
-hat_empfehlung = False
-for p in pruefungen_sortiert:
-    pruefung_id, uid, fach_name, datum_str, ects_val = p
-    pruefungs_datum = date.fromisoformat(datum_str)
-    tage_bis = (pruefungs_datum - heute).days
-    if tage_bis <= 0:
-        continue
-
-    # 1 ECTS = 30 hours total study time
-    noch_stunden = ects_val * 30
-    stunden_heute = berechne_stunden_heute(noch_stunden, tage_bis)
-
-    col1, col2, col3 = st.columns([3, 2, 2])
-    with col1:
-        st.write(f"**{fach_name}**")
-    with col2:
-        st.write(f"{stunden_heute}h heute")
-    with col3:
-        st.write(f"Prüfung in {tage_bis} Tagen")
-    hat_empfehlung = True
-
-if hat_empfehlung:
-    st.write("")
-    st.info("Tipp: Lerne in 90 Minuten Blöcken mit 15 Minuten Pause dazwischen.")
 else:
-    st.success("Keine anstehenden Prüfungen. Gut gemacht!")
+
+    for p in pruefungen_sortiert:
+
+        pruefung_id, uid, fach_name, datum_str, ects_val = p
+
+        exam_date = date.fromisoformat(datum_str)
+        days_left = (exam_date - selected_day).days
+
+        if days_left <= 0:
+            continue
+
+        progress_key = f"{fach_name}_{exam_date}"
+
+        if progress_key in st.session_state["exam_progress"]:
+            progress_text = st.session_state["exam_progress"][progress_key]
+        else:
+            progress_text = "Noch nicht begonnen"
+
+        total_hours = ects_val * 30
+
+        # Calculate remaining hours with simple if rules
+        if progress_text == "Noch nicht begonnen":
+            remaining_hours = total_hours
+        elif progress_text == "Etwas gemacht":
+            remaining_hours = total_hours * 0.75
+        elif progress_text == "Ungefähr die Hälfte":
+            remaining_hours = total_hours * 0.5
+        elif progress_text == "Fast fertig":
+            remaining_hours = total_hours * 0.25
+        else:
+            remaining_hours = total_hours * 0.1
+
+        remaining_hours = round(remaining_hours, 1)
+
+        # Count available study days until this exam
+        available_days = 0
+        current_day = selected_day
+
+        while current_day < exam_date:
+            if current_day not in freie_daten:
+                available_days = available_days + 1
+
+            current_day = current_day + timedelta(days=1)
+
+        if available_days == 0:
+            available_days = 1
+
+        daily_hours = remaining_hours / available_days
+
+        # Make the daily learning time more realistic
+        if daily_hours < 0.5:
+            daily_hours = 0.5
+        elif daily_hours > 3:
+            daily_hours = 3
+        else:
+            daily_hours = round(daily_hours, 1)
+
+        total_hours_today = total_hours_today + daily_hours
+
+        with st.container(border=True):
+
+            st.markdown(f"### {fach_name}")
+
+            col1, col2, col3 = st.columns(3)
+
+            with col1:
+                st.write("**Lernzeit heute**")
+                st.write(f"{daily_hours} h")
+
+            with col2:
+                st.write("**Prüfung in**")
+                st.write(f"{days_left} Tagen")
+
+            with col3:
+                st.write("**Offene Stunden**")
+                st.write(f"{remaining_hours} h")
+
+            st.caption(f"{available_days} verfügbare Lerntage")
+
+
+#================
+# RECOMMENDATION
+#================
 
 st.divider()
+st.subheader("Empfehlung")
 
-# ==============================
-# PROGRESS BARS
-# ==============================
+if selected_day in freie_daten:
+    st.success("Heute ist ein freier Tag. Erholung gehört dazu.")
 
-st.subheader("Dein Fortschritt")
-st.caption("Wie viel Zeit noch bis zu deinen Prüfungen bleibt.")
+else:
+    if total_hours_today <= 2:
+        st.info("Heute ist ein leichter Lerntag.")
 
-def motivations_text(tage_bis):
-    """Returns a motivating message based on days remaining until exam."""
-    if tage_bis <= 0:
-        return "Prüfung vorbei"
-    elif tage_bis <= 7:
-        return f"Nur noch {tage_bis} Tage! Jetzt alles geben."
-    elif tage_bis <= 21:
-        return f"Noch {tage_bis} Tage. Regelmässig lernen zahlt sich aus."
+    elif total_hours_today <= 4:
+        st.info("Heute ist ein realistischer Lerntag.")
+
+    elif total_hours_today <= 6:
+        st.warning("Heute ist viel eingeplant. Plane genügend Pausen ein.")
+
     else:
-        return f"Noch {tage_bis} Tage. Früh anfangen lohnt sich."
+        st.error("Der Plan ist unrealistisch. Reduziere freie Tage oder starte früher.")
+
+
+#================
+# SUMMARY
+#================
+
+st.divider()
+st.subheader("Zusammenfassung")
 
 for p in pruefungen_sortiert:
+
     pruefung_id, uid, fach_name, datum_str, ects_val = p
-    pruefungs_datum = date.fromisoformat(datum_str)
-    tage_bis = (pruefungs_datum - heute).days
 
-    # Progress bar fills up as exam approaches
-    # Reference window of 90 days
-    referenz_tage = 90
-    if tage_bis <= 0:
-        fortschritt = 1.0
+    exam_date = date.fromisoformat(datum_str)
+
+    progress_key = f"{fach_name}_{exam_date}"
+
+    if progress_key in st.session_state["exam_progress"]:
+        progress_text = st.session_state["exam_progress"][progress_key]
     else:
-        fortschritt = max(0.0, min(1.0, 1 - (tage_bis / referenz_tage)))
+        progress_text = "Noch nicht begonnen"
 
-    col1, col2 = st.columns([1, 3])
-    with col1:
-        st.write(f"**{fach_name}**")
-        st.write(f"{ects_val} ECTS")
-        st.write(f"{tage_bis} Tage noch")
-    with col2:
-        st.progress(fortschritt)
-        st.caption(motivations_text(tage_bis))
+    total_hours = ects_val * 30
+
+    if progress_text == "Noch nicht begonnen":
+        remaining_hours = total_hours
+    elif progress_text == "Etwas gemacht":
+        remaining_hours = total_hours * 0.75
+    elif progress_text == "Ungefähr die Hälfte":
+        remaining_hours = total_hours * 0.5
+    elif progress_text == "Fast fertig":
+        remaining_hours = total_hours * 0.25
+    else:
+        remaining_hours = total_hours * 0.1
+
+    remaining_hours = round(remaining_hours, 1)
+
+    available_days = 0
+    current_day = today
+
+    while current_day < exam_date:
+        if current_day not in freie_daten:
+            available_days = available_days + 1
+
+        current_day = current_day + timedelta(days=1)
+
+    if available_days == 0:
+        available_days = 1
+
+    daily_hours = remaining_hours / available_days
+
+    if daily_hours < 0.5:
+        daily_hours = 0.5
+    elif daily_hours > 3:
+        daily_hours = 3
+    else:
+        daily_hours = round(daily_hours, 1)
+
+    st.write(f"**{fach_name}**")
+    st.caption(
+        f"Noch ca. {remaining_hours} Stunden "
+        f"auf {available_days} Lerntage verteilt. "
+        f"Empfohlen: ca. {daily_hours} h pro Lerntag."
+    )
