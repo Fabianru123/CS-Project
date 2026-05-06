@@ -205,3 +205,98 @@ fig2.update_layout(
 )
 
 st.plotly_chart(fig2)
+
+
+
+#==============
+# EXAM RESULTS
+#==============
+
+st.subheader("Prüfungsergebnisse")
+
+st.write("Du kannst hier deine Ergebnisse eingeben, um deine Fortschritte zu verfolgen.")
+
+exam_name = st.text_input("Name der Prüfung")
+
+grade = st.number_input("Deine Note")
+
+ects = st.number_input("ECTS")
+
+if st.button("Bestätigen"):
+    if exam_name.strip() == "":
+        st.warning("Bitte gib den Namen der Prüfung und die Note ein.")
+    elif grade == 0:
+        st.warning("Bitte gib die Note ein.")
+    elif ects == 0:
+        st.warning("Bitte gib die ECTS ein.")
+    else:
+        add_exam_result(st.session_state["user_id"], exam_name, grade, ects)
+        st.success("Ergebnis gespeichert.")    
+
+if "user_id" in st.session_state:
+    exam_data = get_exam_results_by_user(st.session_state["user_id"])
+    if len(exam_data) == 0:
+        st.info("Noch keine Ergebnisse vorhanden.")
+    else:
+
+        exam_df = pd.DataFrame(
+            exam_data,
+            columns=["exam_id", "user_id", "created_at", "exam_name", "grade", "ects"]
+        )
+        exam_df = exam_df.sort_values("created_at")
+        exam_df["created_at"] = pd.to_datetime(exam_df["created_at"])
+        exam_df["created_at"] = exam_df["created_at"].dt.tz_localize("UTC")
+        exam_df["created_at"] = exam_df["created_at"].dt.tz_convert("Europe/Zurich")
+        exam_df["date_clean"] = exam_df["created_at"].dt.strftime("%-d. %B %Y %H:%M")
+
+        nb_lines = len(exam_df)
+        weighted_mean = (exam_df["grade"] * exam_df["ects"]).sum() / exam_df["ects"].sum()
+        rounded_mean = round(weighted_mean, 2)
+        last_grade = exam_df["grade"].iloc[-1]
+
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Anzahl Prüfungen", nb_lines)
+        col2.metric("Durchschnitt", rounded_mean)
+        col3.metric("Letzte Note", last_grade)
+
+        #----------------
+        # FIGURE 3: NOTES
+        #----------------
+
+        exam_df = exam_df.rename(columns={
+            "exam_name": "Prüfung",
+            "grade": "Note",
+            "date_clean": "Datum",
+            "ects": "ECTS"
+        })
+
+        fig3 = go.Figure()
+        fig3.add_trace(
+            go.Bar(
+                x = exam_df["Note"],
+                y = exam_df["Prüfung"],
+                orientation = 'h',
+                marker=dict(color="#8a9a8b"),
+                name="Deine Noten"
+            )
+        )
+
+        # The user can see the mean of his grades
+        fig3.add_vline(
+            x=rounded_mean,
+            line_dash="dash",
+            line_color="#0d4200",
+            annotation_text="Dein Durchschnitt",
+            annotation_position="top"
+        )
+
+        fig3.update_layout(
+            title = "Deine Prüfungsergebnisse im Überblick",
+            xaxis_title="Note",
+            yaxis_title="Prüfung",
+        )
+
+        st.plotly_chart(fig3)
+
+else:
+    st.info("Bitte logge dich zuerst ein.")
