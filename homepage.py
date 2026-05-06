@@ -29,7 +29,6 @@ with st.sidebar:
             user_id = get_or_create_user(username)
             st.session_state["user_id"] = user_id
             st.session_state["username"] = username
-            st.success(f"Eingeloggt als {username}") 
     if "user_id" in st.session_state:
         st.success(f"Erfolgreich eingeloggt als {st.session_state['username']}.")
 
