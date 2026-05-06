@@ -435,6 +435,14 @@ elif  pbild == 2:
 elif pbild == 1:
     tipps.append("Du benötigst ein digital Detox, schalte beim Lernen alle Benachtitigungen aus und lege dein Handy ausser Sichtweite")
 
+if pgesund == 4:
+    tipps.append("Du bist körperlich in einer guten Verfassung. Dies gibt dir eine gute Basis für dein Lernen. Weiter so!")
+elif pgesund == 2:
+    tipps.append("Du fühlst dich etwas angeschlagen? Probiere in deinen Lernpausen progressive Muskelentspannung. Bei dieser spannst du eine bestimmte Muskelgruppe kurz an und lässt sie nach 10 Sekunden wieder los.")
+elif pgesund == 1:
+    tipps.append("Dein körperlicher Zustand beeinflusst deine Leistungsfähigkeit stark. Gönne dir morgen einen Ruhetag, um Energie für die nächsten Tage zu sammeln.")
+#Quelle Gesundheitszustand Tipps: Raskind, I. G., Haardörfer, R., & Berg, C. J. (2019). Food insecurity, psychosocial health and academic performance among college and university students in Georgia, USA. Public Health Nutrition, 22(3), 476–485. https://doi.org/10.1017/S1368980018003439
+
 if philfe == 4:
     tipps.append("Du hast ein solides Verständnis, festige dein Wissen indem du deinen Mitstudenten den Inhalt erklärst oder Altklausuren löst")
 elif philfe == 2:
@@ -462,6 +470,14 @@ elif pfreetime == 1:
     tipps.append("Gönne dir etwas Abwechslung vom lernen, plane dieses Wochenende bewusst eine Aktivität ein die nichts mit der Uni zu tun hat.")
 elif pfreetime == 0.5:
     tipps.append("Es fehlt dir an der nötigen Balance zwischen Uni und Privatleben. Triff dich in den nächsten Tagen mit Freunden oder nimm dir heute Abend etwas Zeit für dich")    
+
+if pgoout == 2:
+    tipps.append("Du hast eine gute  Balance gefunden. Achte weiterhin darauf dir deine Lernphasen und Ausgangsabende klar einzuteilen.")
+elif pgoout == 1:
+    tipps.append("Achte auf dein Zeitmanagement . Plane nach dem Ausgehen einen Puffer-Tag für leichtere Aufgaben ein und versucht,  nicht mehr als zweimal pro Woche auszugehen.")
+elif pgoout == 0.5:
+    tipps.append("Häufiges Feiern wirkt sich negativ auf deinen Lernrhytmus aus. Versuche klare Prioritäten zu setzen und gehe nur in den Aufgang wenn du deine Lernziele für die Woche erreicht hast.")
+#Quelle Ausgang Tipps: Gries, B. (2018, January 24). The effects of partying on academics. The Equinox. https://kscequinox.com/2018/01/the-effects-of-partying-on-academics/
 
 if ppendel == 2: 
     tipps.append("Du hast Glück mit deinem kurzen Fahrtweg, dies gibt dir mehr Zeit für Schlaf oder Freizeitaktivitäten.")
