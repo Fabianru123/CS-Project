@@ -29,9 +29,23 @@ init_db()
 # PAGE TITLE
 #================
 
+col81, col82 = st.columns(2)
+
+with col81:
+    st.image("https://i.pinimg.com/736x/93/e9/2a/93e92aa415afeeb20ba87af61eb98a8d.jpg", width = 300)
+with col82:
+    st.image("https://i.pinimg.com/736x/2e/a9/26/2ea926c768ccd98cbd60323f204a77bc.jpg", width = 300)
+
 st.title("Lernplan")
 st.write("Hier kannst du deine Prüfungen eintragen und deinen Lernplan bis zur Prüfung erstellen.")
 st.divider()
+
+#================
+# SIDEBAR
+#================
+
+with st.sidebar:
+    st.write("Viel Erfolg beim Lernen!")
 
 
 #================
