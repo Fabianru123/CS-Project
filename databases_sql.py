@@ -187,3 +187,55 @@ def get_exam_results_by_user(user_id):
 
     DB.close()
     return rows
+
+#======================
+# Study Plan: Exams
+#======================
+
+def add_pruefung(user_id, fach, datum, ects):
+    """Adds a new exam for a user to the database."""
+    DB = sqlite3.connect(DB_NAME)
+    cursor = DB.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS pruefungen (
+            pruefung_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            fach TEXT NOT NULL,
+            datum TEXT NOT NULL,
+            ects INTEGER DEFAULT 1,
+            FOREIGN KEY (user_id) REFERENCES users(user_id)
+        )
+    """)
+    cursor.execute("""
+        INSERT INTO pruefungen (user_id, fach, datum, ects)
+        VALUES (?, ?, ?, ?)
+    """, (user_id, fach, datum, ects))
+    DB.commit()
+    DB.close()
+
+def get_pruefungen(user_id):
+    """Returns all exams for a specific user."""
+    DB = sqlite3.connect(DB_NAME)
+    cursor = DB.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS pruefungen (
+            pruefung_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            fach TEXT NOT NULL,
+            datum TEXT NOT NULL,
+            ects INTEGER DEFAULT 1,
+            FOREIGN KEY (user_id) REFERENCES users(user_id)
+        )
+    """)
+    cursor.execute("SELECT * FROM pruefungen WHERE user_id = ?", (user_id,))
+    rows = cursor.fetchall()
+    DB.close()
+    return rows
+
+def delete_pruefung(pruefung_id):
+    """Deletes an exam from the database by its ID."""
+    DB = sqlite3.connect(DB_NAME)
+    cursor = DB.cursor()
+    cursor.execute("DELETE FROM pruefungen WHERE pruefung_id = ?", (pruefung_id,))
+    DB.commit()
+    DB.close()
