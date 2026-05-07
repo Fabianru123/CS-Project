@@ -210,7 +210,7 @@ for p in pruefungen_sortiert:
 
     remaining_hours = round(remaining_hours, 1)
 
-    col1, col2, col3, col4, col5, col6 = st.columns([3, 2, 1, 1, 2, 1])
+    col1, col2, col3, col4, col5, col6 = st.columns([2, 2, 1, 1, 2, 2])
 
     with col1:
         st.write(f"**{fach_name}**")
