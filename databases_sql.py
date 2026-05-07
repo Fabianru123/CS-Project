@@ -188,6 +188,19 @@ def get_exam_results_by_user(user_id):
     DB.close()
     return rows
 
+def delete_exam_result(exam_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        DELETE FROM exam_results
+        WHERE exam_id = ?
+    """, (exam_id,))
+
+    conn.commit()
+    conn.close()
+
+
 #======================
 # Study Plan: Exams
 #======================
