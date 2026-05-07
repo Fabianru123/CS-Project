@@ -8,7 +8,7 @@ import sqlite3
 import pandas as pd
 import plotly.graph_objects as go
 
-from databases_sql import init_db, get_or_create_user, get_exam_results_by_user, add_exam_result
+from databases_sql import init_db, get_or_create_user, get_exam_results_by_user, add_exam_result, delete_exam_result
 init_db()
 
 
@@ -296,6 +296,21 @@ if "user_id" in st.session_state:
         )
 
         st.plotly_chart(fig3)
+
+    st.subheader("Gespeicherte Ergebnisse")
+
+    for index, row in exam_df.iterrows():
+
+        col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
+    
+        col1.write(f"**{row['Prüfung']}**")
+        col2.write(f"{row['Note']}")
+        col3.write(f"{row['ECTS']} ECTS")
+    
+        with col4:
+            if st.button("Löschen", key=f"delete_exam_{row['exam_id']}"):
+                delete_exam_result(row["exam_id"])
+                st.rerun()
 
 else:
     st.info("Bitte logge dich zuerst ein.")
