@@ -1,21 +1,24 @@
-#========================================================================================
-# Database Module: Manages SQLite setup, user identification, and storage of user inputs
-#========================================================================================
+# =============================================================================
+# Database Module
+# Handles SQLite database setup, user management, input storage, exam results,
+# and study plan exams.
+# =============================================================================
 
 import sqlite3
 
 DB_NAME = "predicted_inputs.db"
 
 
-#================
+# =============================================================================
 # Database Setup
-#================
+# =============================================================================
 
 def init_db():
+    """Creates the required database tables if they do not already exist."""
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
 
-    # Table users
+    # Create the users table.
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,7 +26,7 @@ def init_db():
     )
     """)
 
-    # Table input
+    # Create the input table for storing user questionnaire results.
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS input (
         input_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,8 +52,7 @@ def init_db():
     )
     """)
 
-
-     # Table exam results
+    # Create the exam results table.
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS exam_results (
     exam_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,27 +66,27 @@ def init_db():
     
     """)
 
-        
-
     DB.commit()
     DB.close()
 
 
-#=================
+# =============================================================================
 # User Management
-#=================
+# =============================================================================
 
-# Retrieves an existing user ID or creates a new user if not found
 def get_or_create_user(user_name):
+    """Returns an existing user ID or creates a new user."""
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
 
+    # Check whether the user already exists.
     cursor.execute("SELECT user_id FROM users WHERE user_name = ?", (user_name,))
     result = cursor.fetchone()
 
     if result:
         user_id = result[0]
     else:
+        # Add a new user and store the generated ID.
         cursor.execute("INSERT INTO users (user_name) VALUES (?)", (user_name,))
         DB.commit()
         user_id = cursor.lastrowid
@@ -93,18 +95,19 @@ def get_or_create_user(user_name):
     return user_id
 
 
-#==================
+# =============================================================================
 # Input Management
-#==================
+# =============================================================================
 
-# Stores a new set of user inputs and the corresponding score.
 def add_input(user_id, age, studien, pschlaf, plernzeit, pstress, pbild,
               pgesund, philfe, ppausen, pfail, pfreetime, pgoout,
               ppendel, pfood, psport, score):
+    """Stores a new set of user inputs and the corresponding score."""
 
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
 
+    # Insert the questionnaire results into the input table.
     cursor.execute("""
         INSERT INTO input (
             user_id, age, studien, pschlaf, plernzeit, pstress, pbild,
@@ -121,11 +124,12 @@ def add_input(user_id, age, studien, pschlaf, plernzeit, pstress, pbild,
     DB.close()
 
 
-#================
+# =============================================================================
 # Data Retrieval
-#================
+# =============================================================================
 
 def get_inputs():
+    """Returns all stored user inputs."""
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
 
@@ -136,8 +140,8 @@ def get_inputs():
     return rows
 
 
-# Returns all stored inputs for a specific user
 def get_inputs_by_user(user_id):
+    """Returns all stored inputs for a specific user."""
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
 
@@ -153,14 +157,16 @@ def get_inputs_by_user(user_id):
     return rows
 
 
-#=======================
-# EXAM RESULT MANAGEMENT
-#=======================
+# =============================================================================
+# Exam Result Management
+# =============================================================================
 
 def add_exam_result(user_id, exam_name, grade, ects):
+    """Stores a new exam result for a specific user."""
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
 
+    # Insert the exam result into the exam_results table.
     cursor.execute("""
         INSERT INTO exam_results (
             user_id, exam_name, grade, ects
@@ -172,8 +178,9 @@ def add_exam_result(user_id, exam_name, grade, ects):
     DB.commit()
     DB.close()
 
-# Returns all stored inputs for a specific user
+
 def get_exam_results_by_user(user_id):
+    """Returns all exam results for a specific user."""
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
 
@@ -188,7 +195,9 @@ def get_exam_results_by_user(user_id):
     DB.close()
     return rows
 
+
 def delete_exam_result(exam_id):
+    """Deletes an exam result from the database by its ID."""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
@@ -201,14 +210,16 @@ def delete_exam_result(exam_id):
     conn.close()
 
 
-#======================
+# =============================================================================
 # Study Plan: Exams
-#======================
+# =============================================================================
 
 def add_pruefung(user_id, fach, datum, ects):
     """Adds a new exam for a user to the database."""
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
+
+    # Create the study plan exams table if it does not exist yet.
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS pruefungen (
             pruefung_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -219,17 +230,23 @@ def add_pruefung(user_id, fach, datum, ects):
             FOREIGN KEY (user_id) REFERENCES users(user_id)
         )
     """)
+
+    # Insert the new exam into the study plan table.
     cursor.execute("""
         INSERT INTO pruefungen (user_id, fach, datum, ects)
         VALUES (?, ?, ?, ?)
     """, (user_id, fach, datum, ects))
+
     DB.commit()
     DB.close()
+
 
 def get_pruefungen(user_id):
     """Returns all exams for a specific user."""
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
+
+    # Ensure that the study plan exams table exists before reading from it.
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS pruefungen (
             pruefung_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -240,15 +257,20 @@ def get_pruefungen(user_id):
             FOREIGN KEY (user_id) REFERENCES users(user_id)
         )
     """)
+
     cursor.execute("SELECT * FROM pruefungen WHERE user_id = ?", (user_id,))
     rows = cursor.fetchall()
+
     DB.close()
     return rows
+
 
 def delete_pruefung(pruefung_id):
     """Deletes an exam from the database by its ID."""
     DB = sqlite3.connect(DB_NAME)
     cursor = DB.cursor()
+
     cursor.execute("DELETE FROM pruefungen WHERE pruefung_id = ?", (pruefung_id,))
+
     DB.commit()
     DB.close()
