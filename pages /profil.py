@@ -8,7 +8,7 @@ import sqlite3
 import pandas as pd
 import plotly.graph_objects as go
 
-from databases_sql import init_db, get_or_create_user
+from databases_sql import init_db, get_or_create_user, get_exam_results_by_user, add_exam_result
 init_db()
 
 
@@ -26,7 +26,6 @@ with st.sidebar:
             user_id = get_or_create_user(username)
             st.session_state["user_id"] = user_id
             st.session_state["username"] = username
-            st.success(f"Eingeloggt als {username}") 
     if "user_id" in st.session_state:
         st.success(f"Erfolgreich eingeloggt als {st.session_state['username']}.")
 
