@@ -332,8 +332,8 @@ else:
         if days_left < 0:
             continue
 
-        # Count the study days from today until this exam.
-        # This means the plan is calculated once from today and does not get stricter on later shown days.
+        # Count the study days from today until this exam
+        # This means the plan is calculated once from today and does not get stricter on later shown days
         available_days = 0
         current_day = today
 
@@ -345,8 +345,8 @@ else:
         if available_days == 0:
             available_days = 1
 
-        # The remaining hours are divided by all available study days.
-        # The result is not limited to 3 hours, so all open hours are covered.
+        # The remaining hours are divided by all available study days
+        # The result is not limited to 3 hours, so all open hours are covered
         daily_hours = remaining_hours / available_days
         daily_hours = round(daily_hours, 1)
 
@@ -407,7 +407,7 @@ for exam in exam_infos:
     fach_name = exam[1]
     exam_date = exam[2]
 
-    # The progress shows how far the selected day is between today and the exam.
+    # The progress shows how far the selected day is between today and the exam
     total_days_until_exam = (exam_date - today).days
     passed_days = (selected_day - today).days
 
