@@ -7,7 +7,7 @@
 # IMPORT AND DATABASE INITILIZATION
 #==================================
 
-from databases_sql import add_input, init_db, get_or_create_user #added by Helena
+from databases_sql import add_input, init_db, get_or_create_user
 init_db()
 
 import streamlit as st
