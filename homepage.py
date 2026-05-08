@@ -298,7 +298,7 @@ if st.button("Bestätigen", key = "button"):
     elif 1 < pendel <= 3:
         ppendel = 1
     else:
-        pgoout = 0.5    
+        ppendel = 0.5    
 
     if food == "Sehr gesund":
         pfood = 2
