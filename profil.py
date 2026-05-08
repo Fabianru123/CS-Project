@@ -233,9 +233,9 @@ st.write("Du kannst hier deine Ergebnisse eingeben, um deine Fortschritte zu ver
 # Input fields for a new exam result.
 exam_name = st.text_input("Name der Prüfung")
 
-grade = st.number_input("Deine Note")
+grade = st.number_input("Deine Note", step=0.25)
 
-ects = st.number_input("ECTS")
+ects = st.number_input("ECTS", step=0.25)
 
 # Save the exam result after validating the input fields.
 if st.button("Bestätigen"):
