@@ -171,4 +171,5 @@ Speichert:
 
 https://predictedcs.streamlit.app
 
-"student" als Username benutzen
+Für die Online-Demo kann der Testbenutzer `student` verwendet werden.  
+Über die Eingabeseite können Testdaten erfasst werden, die anschließend (im Profilbereich) visualisiert werden.
