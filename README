@@ -1,0 +1,174 @@
+#==========================================
+# PredictEd – Student Performance Predictor
+#==========================================
+
+#---------------------
+## Projektbeschreibung
+#---------------------
+
+PredictEd ist eine interaktive Webanwendung zur Analyse und Vorhersage des akademischen Erfolgs von Studierenden.
+
+Die App wurde mit Python und Streamlit entwickelt und ermöglicht Benutzer:innen:
+- persönliche Lern- und Lebensgewohnheiten einzugeben,
+- einen individuellen Performance-Score zu berechnen und Tipps zu erhalten,
+- ihre Ergebnisse zu speichern,
+- ihre Daten mit anderen Nutzer:innen zu vergleichen,
+- ihren Lernfortschritt grafisch zu visualisieren,
+- sowie einen personalisierten Lernplan zu erstellen.
+
+Das Projekt kombiniert Datenanalyse, Datenbanken, Machine Learning und interaktive Visualisierung in einer modernen Benutzeroberfläche.
+
+
+#========================
+# Verwendete Technologien
+#========================
+
+- Python
+- Streamlit
+- SQLite
+- Pandas
+- Plotly
+- Pickle (Machine Learning Modell)
+
+
+#================
+# Projektstruktur
+#================
+
+#---------------
+## `homepage.py`
+#---------------
+Die Hauptseite der Anwendung.
+
+Funktionen:
+- Eingabe persönlicher Daten
+- Berechnung des individuellen Scores
+- Anzeige von Tipps und Empfehlungen
+- Verbindung mit dem Machine-Learning-Modell
+
+
+#-------------
+## `profil.py`
+#-------------
+
+Profilseite der Benutzer:innen.
+
+Funktionen:
+- Vergleich des eigenen Scores mit anderen Benutzer:innen
+- Visualisierung der Ergebnisse mit Diagrammen
+- Anzeige des Scoreverlaufs über die Zeit
+- Verwaltung von Prüfungsergebnissen
+
+#---------------
+## `lernplan.py`
+#---------------
+
+Erstellung eines personalisierten Lernplans.
+
+Funktionen:
+- Generierung eines Lernplans
+- Organisation von Lernzeiten
+- Unterstützung bei der Prüfungsvorbereitung
+
+#--------------------
+## `databases_sql.py`
+#--------------------
+
+Verwaltung der SQLite-Datenbank.
+
+Funktionen:
+- Erstellung der Datenbanktabellen
+- Speicherung von Benutzerdaten
+- Speicherung der Input-Daten
+- Speicherung von Prüfungsergebnissen
+- Datenbankabfragen
+
+#---------------
+## `ml_model.py`
+#---------------
+
+Verarbeitung und Nutzung des Machine-Learning-Modells.
+
+Funktionen:
+- Laden des trainierten Modells
+- Verarbeitung der Eingabedaten
+- Berechnung des vorhergesagten Scores
+
+#-------------
+## `model.pkl`
+#-------------
+
+Gespeichertes trainiertes Machine-Learning-Modell.
+
+#------------
+## `navig.py`
+#------------
+
+Navigation zwischen den verschiedenen Seiten der Streamlit-App.
+
+#-------------------
+## `student-por.csv`
+#-------------------
+
+Datensatz des ursprünglichen Student Performance Datasets.
+
+Quelle:
+UCI Machine Learning Repository
+
+#-----------------------
+## `predicted_inputs.db`
+#-----------------------
+
+SQLite-Datenbank der Anwendung.
+
+Enthält:
+- Benutzerinformationen
+- Scores
+- Eingabedaten
+- Prüfungsergebnisse
+
+#--------------------
+## `requirements.txt`
+#--------------------
+
+Liste der benötigten Python-Bibliotheken.
+
+
+#==================
+# Datenbankstruktur
+#==================
+
+Die Datenbank basiert auf SQLite und enthält mehrere Tabellen.
+
+#-----------------
+## Tabelle `users`
+#-----------------
+Speichert die Benutzernamen und Benutzer-IDs.
+
+#-----------------
+## Tabelle `input`
+#-----------------
+Speichert:
+- persönliche Eingaben,
+- berechnete Variablenwerte,
+- sowie den individuellen Score.
+
+#------------------------
+## Tabelle `exam_results`
+#------------------------
+Speichert:
+- Prüfungsname,
+- Note,
+- ECTS,
+- Zeitstempel.
+
+
+#====================================================
+# Anwendung starten
+#====================================================
+
+## Online Ausführung
+
+https://predictedcs.streamlit.app
+
+"student" als Username benutzen
