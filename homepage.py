@@ -601,7 +601,7 @@ st.write("")
 
 
 st.write("Du kannst jederzeit deine Variablen anpassen, um deinen Score zu verbessern und neue personalisierte Tipps zu erhalten. Du kannst auch einen eigenen Lernplan erstellen lassen, um deine Lernzeit optimal zu nutzen.")
-st.page_link("profil.py", label = "Hier geht's zu deinem Profil", icon = "👤") 
-st.page_link("lernplan.py", label = "Hier kannst du deinen Lernplan erstellen", icon = "🗓️")
+st.page_link("pages/profil.py", label = "Hier geht's zu deinem Profil", icon = "👤") 
+   st.page_link("pages/lernplan.py", label = "Hier kannst du deinen Lernplan erstellen", icon = "🗓️")
 
 st.subheader("Wir wünschen dir ganz viel Erfolg!")
