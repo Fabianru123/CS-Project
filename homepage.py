@@ -27,7 +27,7 @@ with st.sidebar:
             st.warning("Bitte gib einen User Name ein.")
         else:
             user_id = get_or_create_user(username)
-            if username == "student":
+            if username.strip().lower() == "student":
                 add_demo_data_if_empty(user_id)
             st.session_state["user_id"] = user_id
             st.session_state["username"] = username
