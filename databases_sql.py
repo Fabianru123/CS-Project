@@ -298,12 +298,11 @@ def add_demo_data_if_empty(user_id):
         )
     """)
 
-    # Remove old demo data to avoid wrong/duplicated values.
+    # Delete old demo data first.
     cursor.execute("DELETE FROM input WHERE user_id = ?", (user_id,))
     cursor.execute("DELETE FROM exam_results WHERE user_id = ?", (user_id,))
     cursor.execute("DELETE FROM pruefungen WHERE user_id = ?", (user_id,))
 
-    # Demo score history with age, study program and different timestamps.
     demo_inputs = [
         (user_id, "2026-04-20 09:00:00", 21, "BWL", 3, 3, 2, 3, 4, 3, 3, 3, 3, 2, 4, 3, 3, 68),
         (user_id, "2026-04-30 09:00:00", 21, "BWL", 4, 4, 3, 4, 4, 4, 4, 2, 4, 3, 4, 4, 4, 78),
@@ -321,7 +320,6 @@ def add_demo_data_if_empty(user_id):
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, demo_inputs)
 
-    # Demo past exam results for profile page.
     demo_exam_results = [
         (user_id, "2026-03-12 10:00:00", "Mathematik", 5.25, 4.0),
         (user_id, "2026-03-20 10:00:00", "BWL", 5.50, 5.0),
@@ -336,7 +334,6 @@ def add_demo_data_if_empty(user_id):
         VALUES (?, ?, ?, ?, ?)
     """, demo_exam_results)
 
-    # Demo upcoming exams for Lernplan page.
     demo_pruefungen = [
         (user_id, "Corporate Finance", "2026-05-22", 5),
         (user_id, "Marketing", "2026-05-28", 4),
@@ -351,11 +348,10 @@ def add_demo_data_if_empty(user_id):
         VALUES (?, ?, ?, ?)
     """, demo_pruefungen)
 
-    # Add a few other users so the comparison chart is not empty.
     other_users = [
-        ("demo_anna", 22, "VWL", 74),
-        ("demo_luca", 20, "BWL", 81),
-        ("demo_sofia", 23, "International Affairs", 69)
+        ("anna", 22, "VWL", 74),
+        ("luca", 20, "BWL", 81),
+        ("sofia", 23, "International Affairs", 69)
     ]
 
     for name, age, studien, score in other_users:
@@ -363,23 +359,21 @@ def add_demo_data_if_empty(user_id):
         cursor.execute("SELECT user_id FROM users WHERE user_name = ?", (name,))
         other_user_id = cursor.fetchone()[0]
 
-        cursor.execute("SELECT COUNT(*) FROM input WHERE user_id = ?", (other_user_id,))
-        already_exists = cursor.fetchone()[0]
+        cursor.execute("DELETE FROM input WHERE user_id = ?", (other_user_id,))
 
-        if already_exists == 0:
-            cursor.execute("""
-                INSERT INTO input (
-                    user_id, created_at, age, studien,
-                    pschlaf, plernzeit, pstress, pbild,
-                    pgesund, philfe, ppausen, pfail,
-                    pfreetime, pgoout, ppendel, pfood,
-                    psport, score
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                other_user_id, "2026-05-08 09:00:00", age, studien,
-                4, 4, 3, 4, 4, 3, 4, 2, 4, 3, 4, 4, 4, score
-            ))
+        cursor.execute("""
+            INSERT INTO input (
+                user_id, created_at, age, studien,
+                pschlaf, plernzeit, pstress, pbild,
+                pgesund, philfe, ppausen, pfail,
+                pfreetime, pgoout, ppendel, pfood,
+                psport, score
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            other_user_id, "2026-05-08 09:00:00", age, studien,
+            4, 4, 3, 4, 4, 3, 4, 2, 4, 3, 4, 4, 4, score
+        ))
 
     conn.commit()
     conn.close()
