@@ -335,10 +335,10 @@ def add_demo_data_if_empty(user_id):
     """, demo_exam_results)
 
     demo_pruefungen = [
-        (user_id, "Corporate Finance", "2026-05-22", 5),
-        (user_id, "Marketing", "2026-05-28", 4),
-        (user_id, "Operations Management", "2026-06-04", 5),
-        (user_id, "Wirtschaftsrecht", "2026-06-12", 4)
+        (user_id, "Corporate Finance", "2026-07-03", 4),
+        (user_id, "Marketing", "2026-06-29", 2),
+        (user_id, "Operations Management", "2026-06-04", 2),
+        (user_id, "Wirtschaftsrecht", "2026-06-20", 2)
     ]
 
     cursor.executemany("""
