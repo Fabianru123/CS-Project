@@ -274,3 +274,60 @@ def delete_pruefung(pruefung_id):
 
     DB.commit()
     DB.close()
+
+
+#==================================================
+# Add demo data for the "student" account (ChatGPT)
+#==================================================
+
+def add_demo_data_if_empty(user_id):
+
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    # Check if the user already has data.
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM input
+        WHERE user_id = ?
+    """, (user_id,))
+
+    count = cursor.fetchone()[0]
+
+    # Add demo data only if there is no data yet.
+    if count == 0:
+
+        demo_inputs = [
+
+            (user_id, 4, 5, 3, 4, 5, 4, 5, 2, 4, 3, 4, 5, 4, 82),
+            (user_id, 5, 4, 4, 5, 4, 5, 4, 2, 5, 4, 5, 4, 5, 88),
+            (user_id, 3, 4, 2, 3, 4, 3, 4, 3, 3, 2, 3, 4, 3, 71)
+
+        ]
+
+        cursor.executemany("""
+
+            INSERT INTO input (
+                user_id,
+                pschlaf,
+                plernzeit,
+                pstress,
+                pbild,
+                pgesund,
+                philfe,
+                ppausen,
+                pfail,
+                pfreetime,
+                pgoout,
+                ppendel,
+                pfood,
+                psport,
+                score
+            )
+
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+        """, demo_inputs)
+
+    conn.commit()
+    conn.close()
