@@ -530,9 +530,9 @@ elif pfail == 1:
 if pfreetime == 2:
     tipps.append("Du hast eine gute Balance zwischen deinem Uni und deinem Privatleben. Das erhöht deine kognitive Leistungsfähigkeit. Weiter so!")
 elif pfreetime == 1:
-    tipps.append("Gönne dir etwas Abwechslung vom lernen, plane dieses Wochenende bewusst eine Aktivität ein die nichts mit der Uni zu tun hat.")
+    tipps.append("Freizeit ist wichtig, aber du solltest darauf achten, genug Zeit für die Uni einzuplanen. Wenn du dich etwas besser organisierst und dich mehr auf dein Studium konzentrierst, wirst du langfristig weniger Stress haben")
 elif pfreetime == 0.5:
-    tipps.append("Es fehlt dir an der nötigen Balance zwischen Uni und Privatleben. Triff dich in den nächsten Tagen mit Freunden oder nimm dir heute Abend etwas Zeit für dich")  
+    tipps.append("Versuche, ein gutes Gleichgewicht zwischen Freizeit und Universität zu finden. Regelmäßige Pausen sind wichtig, aber auch eine strukturierte Arbeitsweise hilft dir, langfristig erfolgreich und motiviert zu bleiben")  
 # Source: Bensberg, G., & Messer, J. (2014). Zeitmanagement. In Survivalguide Bachelor 
 # (S. 109–119). Springer Berlin Heidelberg. https://doi.org/10.1007/978-3-642-39027-2_14
 
