@@ -330,7 +330,8 @@ if st.button("Bestätigen", key = "button"):
         "pfail": pfail, "pfreetime": pfreetime, "pgoout": pgoout,
         "ppendel": ppendel, "pfood": pfood, "psport": psport,
     }
-    st.session_state["pass_probability"] = predict_pass_probability(points_dict)
+    ml_prediction = predict_pass_probability(points_dict)
+    st.session_state["pass_probability"] = (score + ml_prediction) / 2
     
     if "user_id" not in st.session_state:
         st.warning("Bitte logge dich zuerst ein.")
