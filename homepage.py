@@ -8,6 +8,7 @@
 #==================================
 
 from databases_sql import add_input, init_db, get_or_create_user, add_demo_data_if_empty
+from ml_model import predict_pass_probability
 init_db()
 
 import streamlit as st
@@ -321,7 +322,16 @@ if st.button("Bestätigen", key = "button"):
     score = 2.5 * st.session_state.punkte 
     # 2.5 = 100 / 40 = Max Score / Anzhal max Punkte nach der aktuellen Variablen 
     # 100 = max Score und entspricht der maximalen Wahrscheinlichkeit 
-
+    
+    # ML-basierte Pass Probability berechnen und im Session State speichern
+    points_dict = {
+        "pschlaf": pschlaf, "plernzeit": plernzeit, "pstress": pstress1,
+        "pbild": pbild, "pgesund": pgesund, "philfe": philfe, "ppausen": ppausen,
+        "pfail": pfail, "pfreetime": pfreetime, "pgoout": pgoout,
+        "ppendel": ppendel, "pfood": pfood, "psport": psport,
+    }
+    st.session_state["pass_probability"] = predict_pass_probability(points_dict)
+    
     if "user_id" not in st.session_state:
         st.warning("Bitte logge dich zuerst ein.")
     else:
@@ -401,7 +411,7 @@ with col22:
 
     import plotly.graph_objects as go
 
-    pass_probability = score 
+    pass_probability = st.session_state.get("pass_probability", 0)
 
     if 0 <= pass_probability <= 34:
         color = "#e57373"
@@ -423,7 +433,7 @@ with col22:
     fig_gauge.update_layout(height = 350)
 
     st.plotly_chart(fig_gauge)
-    st.write("Du hast eine Pass Probability von", score,"%")
+    st.write("Du hast eine Pass Probability von", round(pass_probability, 1),"%")
 
 
 #=========================================================================
