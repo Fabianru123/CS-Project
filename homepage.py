@@ -363,7 +363,7 @@ score = 2.5 * st.session_state.punkte
     #=====================================================================================
 
 with st.sidebar: 
-    st.write("Dein Score:", score)
+    st.write("Dein Score:", round(st.session_state.get("pass_probability", 0), 1))
 
 col21, col22 = st.columns(2) 
 
