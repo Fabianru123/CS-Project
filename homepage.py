@@ -320,10 +320,46 @@ if st.button("Bestätigen", key = "button"):
     st.session_state.punkte = pschlaf + plernzeit + pstress1 + pbild + pgesund + philfe + ppausen + pfail + pfreetime + pgoout + ppendel + pfood + psport 
 
     score = 2.5 * st.session_state.punkte 
-    # 2.5 = 100 / 40 = Max Score / Anzhal max Punkte nach der aktuellen Variablen 
-    # 100 = max Score und entspricht der maximalen Wahrscheinlichkeit 
+    # 2.5 = 100 / 40 = max score / number of points based on the current variables
+    # 100 = maximum score and corresponds to the highest probability
     
-    # ML-basierte Pass Probability berechnen und im Session State speichern
+#=========================================================================
+    # FINAL SCORE CALCULATION
+    # The final score combines two independent methods into a single value:
+    #
+    # 1. MANUAL SCORE (rule-based):
+    #    Calculated from all 13 input variables using fixed point ranges
+    #    defined in the score calculation rules above. The sum of points
+    #    is multiplied by 2.5 (because 100 / 40 = 2.5, where 40 is the
+    #    maximum total points and 100 is the maximum score).
+    #    -> See lines above (variable: score)
+    #
+    # 2. ML PASS PROBABILITY (data-driven):
+    #    Computed by a Logistic Regression model trained on the UCI
+    #    Student Performance Dataset (649 real Portuguese students).
+    #    The model uses 7 of the 13 input variables, the ones that are
+    #    also present in the dataset:
+    #    studytime, health, schoolsup, failures, freetime, Dalc, traveltime.
+    #    The label was derived from the final grade G3 (>= 10 = passed).
+    #    Source: https://archive.ics.uci.edu/dataset/320/student+performance
+    #    -> See file ml_model.py, function predict_pass_probability()
+    #
+    # FINAL VALUE:
+    # We combine both methods using an unweighted average:
+    #
+    #    final_score = (heuristic_score + ml_pass_probability) / 2
+    #
+    # Reasoning:
+    # The normally calculated score covers all 13 variables but is a fixed formula.
+    # The ML prediction is data-driven but only uses 7 variables.
+    # The average combines the breadth of the heuristic with the
+    # data-grounded estimate of the ML model, producing a single,
+    # easy-to-interpret value for the user.
+    #
+    # The final value is stored in st.session_state["pass_probability"]
+    # and is displayed both in the sidebar ("Dein Score") and in the
+    # gauge chart on the results page.
+    #=========================================================================
     points_dict = {
         "pschlaf": pschlaf, "plernzeit": plernzeit, "pstress": pstress1,
         "pbild": pbild, "pgesund": pgesund, "philfe": philfe, "ppausen": ppausen,
