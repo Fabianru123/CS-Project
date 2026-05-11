@@ -323,7 +323,7 @@ if st.button("Bestätigen", key = "button"):
     # 2.5 = 100 / 40 = max score / number of points based on the current variables
     # 100 = maximum score and corresponds to the highest probability
     
-#=========================================================================
+    #=========================================================================
     # FINAL SCORE CALCULATION
     # The final score combines two independent methods into a single value:
     #
