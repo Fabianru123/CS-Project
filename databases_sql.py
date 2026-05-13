@@ -277,7 +277,7 @@ def delete_pruefung(pruefung_id):
 
 
 #========================================================
-# Complete demo data for the "student" account (ChatGPT)
+# Complete demo data for the "testuser" account (ChatGPT)
 #========================================================
 
 def add_demo_data_if_empty(user_id):
