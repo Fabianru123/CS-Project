@@ -373,7 +373,7 @@ if st.button("Bestätigen", key = "button"):
         st.warning("Bitte logge dich zuerst ein.")
     else:
         add_input(
-            st.session_state["user_id"], age, studien, pschlaf, plernzeit, pstress1, pbild, pgesund, philfe, ppausen, pfail, pfreetime, pgoout, ppendel, pfood, psport, score
+            st.session_state["user_id"], age, studien, pschlaf, plernzeit, pstress1, pbild, pgesund, philfe, ppausen, pfail, pfreetime, pgoout, ppendel, pfood, psport, st.session_state["pass_probability"]
         )
         st.success ("Daten gespeichert.")
 
