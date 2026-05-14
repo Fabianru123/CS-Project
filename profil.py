@@ -21,7 +21,7 @@ init_db()
 
 # Originally, the application's theme was configured using the
 # `.streamlit/config.toml` file.
-# However, because some submission platforms only allow uploading
+# However, because Canvas only allow uploading
 # individual files instead of complete folders, the theme settings
 # were integrated directly into the Python files using CSS.
 
