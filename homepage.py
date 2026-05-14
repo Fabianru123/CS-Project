@@ -17,21 +17,22 @@ st.set_page_config(layout = "centered")
 
 
 # =============================================================================
-# Custom CSS theme
+# Custom CSS theme (ChatGPT)
 # =============================================================================
 
 # Originally, the application's theme was configured using the
-# `.streamlit/config.toml` file.
-# However, because Canvas only allow uploading
+# ⁠ .streamlit/config.toml ⁠ file with a folder.
+# However, because Canvas only allows uploading
 # individual files instead of complete folders, the theme settings
 # were integrated directly into the Python files using CSS.
 
 st.markdown("""
 <style>
 
-/* Background */
+/* Main background */
 .stApp {
     background-color: #faf9f9;
+    font-family: serif;
 }
 
 /* Sidebar */
@@ -39,23 +40,48 @@ section[data-testid="stSidebar"] {
     background-color: #d3dbd1;
 }
 
-/* Text */
-html, body, [class*="css"]  {
+/* Global text */
+html, body, [class*="css"], p, div, label {
     color: #22313f;
-    font-family: serif;
+    font-family: serif !important;
+}
+
+/* Titles */
+h1, h2, h3, h4 {
+    color: #0d4200;
+    font-family: serif !important;
 }
 
 /* Buttons */
 .stButton>button {
-    background-color: #0d4200;
-    color: white;
+    background-color: #f0ebe3;
+    color: #22313f;
     border-radius: 10px;
-    border: none;
+    border: 1px solid #d3dbd1;
+    font-family: serif;
+}
+
+/* Button hover effect */
+.stButton>button:hover {
+    background-color: #e4ddd2;
+    color: #0d4200;
+}
+
+/* Input fields */
+input, textarea {
+    font-family: serif !important;
+}
+
+/* Plotly charts */
+.js-plotly-plot,
+.plotly,
+.plot-container {
+    background-color: #faf9f9 !important;
+    border-radius: 15px;
 }
 
 </style>
 """, unsafe_allow_html=True)
-
 
 
 #=========
@@ -478,6 +504,15 @@ with col21:
         showlegend=False)
     fig_radar.update_layout(height = 420)
 
+    fig_radar.update_layout(
+    paper_bgcolor="#faf9f9",
+    plot_bgcolor="#faf9f9",
+    font=dict(
+        family="serif",
+        color="#22313f"
+    )
+)
+
     st.plotly_chart(fig_radar)
 
 
@@ -511,6 +546,15 @@ with col22:
             'bgcolor': "lightgray"}))
     
     fig_gauge.update_layout(height = 350)
+
+    fig_gauge.update_layout(
+    paper_bgcolor="#faf9f9",
+    plot_bgcolor="#faf9f9",
+    font=dict(
+        family="serif",
+        color="#22313f"
+    )
+)
 
     st.plotly_chart(fig_gauge)
     st.write("Du hast eine Pass Probability von", round(pass_probability, 1),"%")
