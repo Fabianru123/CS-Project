@@ -185,3 +185,6 @@ streamlit run navig.py
 Für die lokale Demo kann ebenfalls der Benutzer `testuser` verwendet werden, um auf bereits vorhandene Beispieldaten zuzugreifen.
 
 -> Nach der Eingabe von `testuser` bitte auf „Login“ klicken.
+
+
+Falls nötig: https://github.com/Fabianru123/CS-Project
