@@ -108,8 +108,8 @@ else:
     col1, col2, col3 = st.columns(3)
     col1.metric("Alter", current_age)
     col2.metric("Studiengang", current_studien)
-    col3.metric("Letzter Score", last_entry['score'])
-
+    col3.metric("Letzter Score", f"{last_entry['score']:.1f}")
+    
 st.divider()
 
 
