@@ -21,6 +21,48 @@ from databases_sql import (
 init_db()
 
 
+# =============================================================================
+# Custom CSS theme
+# =============================================================================
+
+# Originally, the application's theme was configured using the
+# `.streamlit/config.toml` file.
+# However, because Canvas only allow uploading
+# individual files instead of complete folders, the theme settings
+# were integrated directly into the Python files using CSS.
+
+st.markdown("""
+<style>
+
+/* Background */
+.stApp {
+    background-color: #faf9f9;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #d3dbd1;
+}
+
+/* Text */
+html, body, [class*="css"]  {
+    color: #22313f;
+    font-family: serif;
+}
+
+/* Buttons */
+.stButton>button {
+    background-color: #0d4200;
+    color: white;
+    border-radius: 10px;
+    border: none;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+
 #================
 # PAGE TITLE
 #================
