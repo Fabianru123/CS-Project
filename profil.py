@@ -251,7 +251,7 @@ fig1.add_trace(
 fig1.update_layout(
     title="Dein Vergleich mit anderen Nutzern",
     xaxis_title="Variablen",
-    yaxis_title="Score"
+    yaxis_title="Score",
     paper_bgcolor="#faf9f9",
     plot_bgcolor="#faf9f9",
     font=dict(
@@ -291,7 +291,7 @@ fig2.add_trace(
 fig2.update_layout(
     title="Entwicklung deines Scores über die Zeit",
     xaxis_title="Zeit",
-    yaxis_title="Score"
+    yaxis_title="Score",
     paper_bgcolor="#faf9f9",
     plot_bgcolor="#faf9f9",
     font=dict(
