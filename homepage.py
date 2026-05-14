@@ -543,7 +543,7 @@ with col22:
         number={'suffix': "%"},
         gauge={'axis': {'range': [0,100]},
             'bar': {"color": color},
-            'bgcolor': "lightgray"}))
+            'bgcolor': "#faf9f9"}))
     
     fig_gauge.update_layout(height = 350)
 
