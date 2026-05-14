@@ -171,16 +171,17 @@ Speichert:
 
 https://predictedcs.streamlit.app
 
-Für die Online-Demo kann der Testbenutzer `testuser` verwendet werden.
-Über die Eingabeseite können Testdaten erfasst werden, die anschliessend im Profilbereich und Lernplan visualisiert werden.
+-> Nach der Eingabe von `testuser` bitte auf „Login“ klicken.
 
+Für die Online-Demo kann der Testbenutzer `testuser` verwendet werden.  
+Über die Eingabeseite können Testdaten erfasst werden, die anschließend (im Profilbereich) visualisiert werden.
 
-## Lokale Ausführung auf dem Computer
+## Lokale Ausführung
 
-1. Alle Dateien des Projekts herunterladen
-2. Die benötigten Bibliotheken installieren (`streamlit`, `pandas`, `plotly` usw.)
-3. Im Terminal folgenden Befehl ausführen:
+Das Projekt lokal starten mit:
 
 streamlit run navig.py
 
-Auch lokal kann der Benutzername `testuser` verwendet werden, um auf ein Konto mit bereits vorhandenen Beispieldaten zuzugreifen.
+Für die lokale Demo kann ebenfalls der Benutzer `testuser` verwendet werden, um auf bereits vorhandene Beispieldaten zuzugreifen.
+
+-> Nach der Eingabe von `testuser` bitte auf „Login“ klicken.
